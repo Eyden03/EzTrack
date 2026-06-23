@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+import { useState, useRef, useCallback, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
@@ -57,19 +57,39 @@ function ScrollRow({ children }) {
 export default function AITab() {
   const navigate = useNavigate()
   const { state, dispatch } = useApp()
-  const [messages, setMessages] = useState([
-    {
-      role: 'ai',
-      text: "Kamusta! I've been watching your finances. This week you earned <strong>₱6,020</strong> and spent <strong>₱1,200</strong> on supplies. Net: <strong>₱4,820</strong>. Maganda! Anything you want to check?",
-      ts: '8:02 AM',
-    },
-  ])
+  const messages = state.chatMessages
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(true)
   const queriesRemaining = state.simulaQueriesRemaining
   const tier = state.tier
   const isSimulaExhausted = tier === CONFIG.TIERS.SIMULA && queriesRemaining <= 0
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      const weekTx = state.transactions.filter(t => {
+        const d = new Date(t.date)
+        const weekAgo = new Date()
+        weekAgo.setDate(weekAgo.getDate() - CONFIG.WEEKLY_LOOKBACK_DAYS)
+        return d >= weekAgo
+      })
+      const inc = weekTx.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0)
+      const exp = weekTx.filter(t => t.type === 'exp').reduce((s, t) => s + t.amt, 0)
+      const name = state.user?.name || 'Negosyante'
+      const biz = state.business?.name || 'your business'
+
+      let text
+      if (inc === 0 && exp === 0 && state.transactions.length === 0) {
+        text = `Welcome to EzTrack, ${name}! I'll help you track your finances, inventory, and generate documents. Start by logging a transaction or asking me about your money.`
+      } else if (inc > 0 || exp > 0) {
+        const net = inc - exp
+        text = `Kamusta, ${name}! This week ${biz} earned <strong>₱${inc.toLocaleString()}</strong> and spent <strong>₱${exp.toLocaleString()}</strong>. Net: <strong>₱${net.toLocaleString()}</strong>. Anything you want to check?`
+      } else {
+        text = `Kamusta, ${name}! Welcome to ${biz}. I can track your income and expenses, manage inventory, generate receipts and reports, and give you financial insights. How can I help today?`
+      }
+      dispatch({ type: 'ADD_CHAT_MESSAGE', payload: { role: 'ai', text, ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) } })
+    }
+  }, []) // eslint-disable-line
 
   function keywordReply(msg) {
     const lower = msg.toLowerCase()
@@ -140,7 +160,7 @@ export default function AITab() {
     }
 
     const userMsg = { role: 'user', text: text.trim(), ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) }
-    setMessages(prev => [...prev, userMsg])
+    dispatch({ type: 'ADD_CHAT_MESSAGE', payload: userMsg })
     setInput('')
     setIsTyping(true)
 
@@ -155,7 +175,7 @@ export default function AITab() {
     await refreshState()
 
     const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts, tools: result?.toolCallsUsed || [], tables: result?.tables || [] }
-    setMessages(prev => [...prev, aiMsg])
+    dispatch({ type: 'ADD_CHAT_MESSAGE', payload: aiMsg })
     setIsTyping(false)
   }
 

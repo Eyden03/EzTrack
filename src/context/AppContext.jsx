@@ -18,6 +18,7 @@ const initialState = {
   goals: [],
   simulaQueriesRemaining: CONFIG.AI_QUERY_LIMIT,
   dbReady: false,
+  chatMessages: [],
 }
 
 function reducer(state, action) {
@@ -72,6 +73,8 @@ function reducer(state, action) {
       return { ...state, simulaQueriesRemaining: Math.max(0, state.simulaQueriesRemaining - 1) }
     case 'RESET_QUERIES':
       return { ...state, simulaQueriesRemaining: CONFIG.AI_QUERY_LIMIT }
+    case 'ADD_CHAT_MESSAGE':
+      return { ...state, chatMessages: [...state.chatMessages, action.payload] }
     default:
       return state
   }
