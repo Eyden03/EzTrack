@@ -12,10 +12,12 @@ function openModal(id) {
 
   if (id === 'modal-log') {
     document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
-    const catGrp  = document.getElementById('log-cat-grp');
-    const noteGrp = document.getElementById('log-note-grp');
-    if (catGrp)  catGrp.style.display  = STATE.tier !== CONFIG.TIERS.SIMULA ? 'block' : 'none';
-    if (noteGrp) noteGrp.style.display = STATE.tier !== CONFIG.TIERS.SIMULA ? 'block' : 'none';
+    const hasCategories = STATE.tier === CONFIG.TIERS.SIGLA || STATE.tier === CONFIG.TIERS.UNLAD;
+    if (hasCategories) {
+      show('log-cat-grp'); show('log-note-grp');
+    } else {
+      hide('log-cat-grp'); hide('log-note-grp');
+    }
   }
 }
 

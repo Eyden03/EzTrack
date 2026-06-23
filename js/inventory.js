@@ -78,8 +78,7 @@ function renderInventoryExtras() {
   }
 
   if (STATE.tier === CONFIG.TIERS.SIGLA || STATE.tier === CONFIG.TIERS.UNLAD) {
-    const threshGrp = document.getElementById('inv-thresh-grp');
-    if (threshGrp) threshGrp.style.display = 'block';
+    show('inv-thresh-grp');
   }
 }
 
