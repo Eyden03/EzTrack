@@ -17,6 +17,7 @@ export default function AITab() {
   ])
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [showSuggestions, setShowSuggestions] = useState(true)
   const queriesRemaining = state.simulaQueriesRemaining
   const tier = state.tier
   const isSimulaExhausted = tier === CONFIG.TIERS.SIMULA && queriesRemaining <= 0
@@ -129,7 +130,7 @@ export default function AITab() {
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}>
               {msg.role === 'ai' && msg.tools?.length > 0 && (
-                <div className="text-[10px] text-gray-300 mb-1">Used: {msg.tools.join(', ')}</div>
+                <div className="text-[10px] text-gray-400 mb-1">Used: {msg.tools.join(', ')}</div>
               )}
               <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: msg.text }} />
               <div className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.ts}</div>
@@ -150,20 +151,33 @@ export default function AITab() {
       </div>
 
       {!isSimulaExhausted && chips.length > 0 && (
-        <div className="px-4 py-2 border-t border-gray-100 space-y-2">
-          {chips.map((group, gi) => (
-            <div key={gi}>
-              <div className="text-[10px] font-bold text-gray-400 uppercase mb-1.5">{group.label}</div>
-              <div className="flex flex-wrap gap-1.5">
-                {group.chips.map((chip, ci) => (
-                  <button key={ci} onClick={() => handleSend(chip.msg)}
-                    className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
-                    {chip.label}
-                  </button>
-                ))}
-              </div>
+        <div className="px-4 py-2 border-t border-gray-100">
+          <button
+            onClick={() => setShowSuggestions(!showSuggestions)}
+            className="flex items-center justify-between w-full text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2"
+          >
+            Suggestions
+            <svg className={`w-4 h-4 transition-transform ${showSuggestions ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+          {showSuggestions && (
+            <div className="space-y-2">
+              {chips.map((group, gi) => (
+                <div key={gi}>
+                  <div className="text-[10px] font-bold text-gray-400 uppercase mb-1.5">{group.label}</div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {group.chips.map((chip, ci) => (
+                      <button key={ci} onClick={() => handleSend(chip.msg)}
+                        className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
+                        {chip.label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          )}
         </div>
       )}
 
