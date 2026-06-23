@@ -32,40 +32,45 @@ function overlayClose(e, id) {
 /* ──────────────────────────────
    Log Transaction modal
 ────────────────────────────── */
-function setTxType(t) {
-  STATE.transactionType = t;
-  document.getElementById('ttype-inc').classList.toggle('active', t === CONFIG.TX.INCOME);
-  document.getElementById('ttype-exp').classList.toggle('active', t === CONFIG.TX.EXPENSE);
+function setTransactionType(type) {
+  STATE.transactionType = type;
+  document.getElementById('ttype-inc').classList.toggle('active', type === CONFIG.TX.INCOME);
+  document.getElementById('ttype-exp').classList.toggle('active', type === CONFIG.TX.EXPENSE);
+}
+
+function createTransaction(amount, description, category) {
+  const timestamp = new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: '2-digit', minute: '2-digit' });
+  const dateStamp = new Date().toISOString().split('T')[0];
+
+  const transaction = {
+    profile_id: STATE.profileId,
+    type: STATE.transactionType,
+    desc: description, amt: amount,
+    date: dateStamp, cat: category || '', time: timestamp,
+  };
+
+  const id = DB.addTransaction(transaction);
+  STATE.transactions.unshift({ id, profile_id: STATE.profileId, ...transaction });
+  return id;
+}
+
+function clearLogForm() {
+  document.getElementById('log-amt').value = '';
+  document.getElementById('log-desc').value = '';
 }
 
 function submitLog() {
-  const amt  = parseFloat(document.getElementById('log-amt').value);
-  const desc = document.getElementById('log-desc').value.trim();
-  if (!amt || amt <= 0) { showToast('Please enter a valid amount'); return; }
-  if (!desc) { showToast('Please add a description'); return; }
+  const amount = parseFloat(document.getElementById('log-amt').value);
+  const description = document.getElementById('log-desc').value.trim();
+  if (!amount || amount <= 0) { showToast('Please enter a valid amount'); return; }
+  if (!description) { showToast('Please add a description'); return; }
 
-  const now     = new Date();
-  const timeStr = now.toLocaleTimeString(CONFIG.LOCALE, { hour: '2-digit', minute: '2-digit' });
-  const dateStr = now.toISOString().split('T')[0];
-  const cat     = document.getElementById('log-cat')?.value || '';
+  const category = document.getElementById('log-cat')?.value || '';
 
-  const newId = DB.addTransaction({
-    profile_id: STATE.profileId,
-    type: STATE.transactionType,
-    desc, amt, date: dateStr, cat, time: timeStr,
-  });
-
-  STATE.transactions.unshift({
-    id: newId, profile_id: STATE.profileId,
-    type: STATE.transactionType, desc, amt, date: dateStr, cat, time: timeStr,
-  });
-
+  createTransaction(amount, description, category);
   closeModal('modal-log');
-  document.getElementById('log-amt').value  = '';
-  document.getElementById('log-desc').value = '';
-
-  renderTxList();
-  renderStats();
+  clearLogForm();
+  renderHomeTab();
   showToast('Transaction saved ✓');
 }
 

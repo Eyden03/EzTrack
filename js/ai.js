@@ -113,8 +113,7 @@ function applyMutations(mutations) {
     }
   }
   if (mutations.length && STATE.currentTab === 'home') {
-    renderTxList();
-    renderStats();
+    renderHomeTab();
   }
 }
 
@@ -208,53 +207,79 @@ function sendAIFromInput() {
   if (msg) { inp.value = ''; sendAI(msg); }
 }
 
-async function sendAI(msg) {
-  const msgsEl = document.getElementById('chat-msgs');
-  if (!msgsEl) return;
+function appendUserMessage(message) {
+  const timestamp = new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: '2-digit', minute: '2-digit' });
+  const messagesElement = document.getElementById('chat-msgs');
+  if (!messagesElement) return timestamp;
+  messagesElement.innerHTML += `<div class="chat-msg user">${message}</div><div class="chat-ts user-ts">${timestamp}</div>`;
+  messagesElement.innerHTML += `<div class="chat-msg ai" id="typing-indicator">Checking your records…</div>`;
+  messagesElement.scrollTop = messagesElement.scrollHeight;
+  return timestamp;
+}
 
+function replaceTypingIndicator(replyText, timestamp) {
+  const indicator = document.getElementById('typing-indicator');
+  if (indicator) indicator.outerHTML = `<div class="chat-msg ai">${replyText}</div><div class="chat-ts ai-ts">${timestamp}</div>`;
+  scrollChatToBottom();
+}
+
+function scrollChatToBottom() {
+  const messagesElement = document.getElementById('chat-msgs');
+  if (messagesElement) messagesElement.scrollTop = messagesElement.scrollHeight;
+}
+
+function updateSimulaCounter() {
+  const counter = document.getElementById('ai-counter');
+  if (!counter) return;
+  const remaining = STATE.simulaQueriesRemaining;
+  counter.innerHTML = remaining > 0
+    ? `<span class="cc-text">${remaining} AI ${remaining === 1 ? 'query' : 'queries'} remaining this month</span>
+       <span class="cc-upgrade" onclick="goTo('page-plans');renderPlans();">Upgrade to Sigla</span>`
+    : `<span class="cc-text cc-exhausted">0 AI queries remaining this month</span>
+       <span class="cc-upgrade" onclick="goTo('page-plans');renderPlans();">Upgrade to Sigla</span>`;
+}
+
+function lockSimulaChat() {
+  const chatBar = document.querySelector('.chat-bar');
+  if (chatBar) chatBar.innerHTML = '<div class="chat-bar-locked">You\'ve used all your AI queries this month. <a onclick="goTo(\'page-plans\');renderPlans();">Upgrade to Sigla</a> for unlimited access.</div>';
+  const suggestions = document.getElementById('ai-sug-groups');
+  if (suggestions) suggestions.innerHTML = '';
+}
+
+function decrementSimulaQueries() {
+  if (STATE.tier !== CONFIG.TIERS.SIMULA) return false;
+  if (STATE.simulaQueriesRemaining <= 0) return true;
+  STATE.simulaQueriesRemaining--;
+  if (STATE.simulaQueriesRemaining <= 0) return true;
+  return false;
+}
+
+async function sendAI(message) {
   if (STATE.tier === CONFIG.TIERS.SIMULA && STATE.simulaQueriesRemaining <= 0) {
     showToast('No AI queries remaining. Upgrade to Sigla for unlimited access.');
     return;
   }
 
-  const now = new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: '2-digit', minute: '2-digit' });
+  const timestamp = appendUserMessage(message);
+  if (!timestamp) return;
 
-  if (STATE.tier === CONFIG.TIERS.SIMULA) STATE.simulaQueriesRemaining--;
+  const isExhausted = decrementSimulaQueries();
 
-  msgsEl.innerHTML += `<div class="chat-msg user">${msg}</div><div class="chat-ts user-ts">${now}</div>`;
-  msgsEl.innerHTML += `<div class="chat-msg ai" id="typing-indicator">Checking your records…</div>`;
-  msgsEl.scrollTop = msgsEl.scrollHeight;
-
-  /* Try real LLM first, fall back to keyword matching */
   const context = buildAIContext();
   const chatHistory = AI_CHAT.messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : m.role, content: m.text }));
-  chatHistory.push({ role: 'user', content: msg });
+  chatHistory.push({ role: 'user', content: message });
 
   const result = await callLLM(chatHistory, context);
-  const reply = result ? result.reply : keywordReply(msg);
+  const reply = result ? result.reply : keywordReply(message);
   if (result && result.mutations.length) applyMutations(result.mutations);
 
-  const typing = document.getElementById('typing-indicator');
-  if (typing) typing.outerHTML = `<div class="chat-msg ai">${reply}</div><div class="chat-ts ai-ts">${now}</div>`;
-  if (msgsEl) msgsEl.scrollTop = msgsEl.scrollHeight;
-  AI_CHAT.messages.push({ role: 'user', text: msg, ts: now }, { role: 'ai', text: reply, ts: now });
+  replaceTypingIndicator(reply, timestamp);
+  AI_CHAT.messages.push({ role: 'user', text: message, ts: timestamp }, { role: 'ai', text: reply, ts: timestamp });
 
-  /* Update counter badge for Simula */
-  if (STATE.tier === CONFIG.TIERS.SIMULA) {
-    const counter = document.getElementById('ai-counter');
-    if (counter) {
-      const r = STATE.simulaQueriesRemaining;
-      counter.innerHTML = r > 0
-        ? `<span class="cc-text">${r} AI ${r === 1 ? 'query' : 'queries'} remaining this month</span>
-           <span class="cc-upgrade" onclick="goTo('page-plans');renderPlans();">Upgrade to Sigla</span>`
-        : `<span class="cc-text" style="color:var(--red-600)">0 AI queries remaining this month</span>
-           <span class="cc-upgrade" onclick="goTo('page-plans');renderPlans();">Upgrade to Sigla</span>`;
-    }
-    if (STATE.simulaQueriesRemaining <= 0) {
-      const bar = document.querySelector('.chat-bar');
-      if (bar) bar.innerHTML = '<div class="chat-bar-locked">You\'ve used all your AI queries this month. <a onclick="goTo(\'page-plans\');renderPlans();">Upgrade to Sigla</a> for unlimited access.</div>';
-      const sug = document.getElementById('ai-sug-groups');
-      if (sug) sug.innerHTML = '';
-    }
+  if (isExhausted) {
+    updateSimulaCounter();
+    lockSimulaChat();
+  } else if (STATE.tier === CONFIG.TIERS.SIMULA) {
+    updateSimulaCounter();
   }
 }

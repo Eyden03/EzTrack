@@ -82,29 +82,34 @@ function renderInventoryExtras() {
   }
 }
 
-function submitAddItem() {
-  const name = document.getElementById('inv-iname').value.trim();
-  const qty  = parseInt(document.getElementById('inv-iqty').value) || 0;
-  const unit = document.getElementById('inv-iunit').value;
-  if (!name) { showToast('Please enter item name'); return; }
-
-  const newId = DB.addInventoryItem({
+function createInventoryItem(name, quantity, unit, threshold) {
+  const item = {
     profile_id: STATE.profileId,
-    name, qty, unit,
-    min_threshold: parseInt(document.getElementById('inv-ithresh').value) || 0,
-  });
+    name, qty: quantity, unit,
+    min_threshold: threshold,
+  };
+  const id = DB.addInventoryItem(item);
+  STATE.inventory.push({ id, profile_id: STATE.profileId, ...item });
+  return id;
+}
 
-  STATE.inventory.push({
-    id: newId, profile_id: STATE.profileId,
-    name, qty, unit,
-    min_threshold: parseInt(document.getElementById('inv-ithresh').value) || 0,
-  });
-
-  renderInventoryList();
-
-  closeModal('modal-additem');
+function clearAddItemForm() {
   document.getElementById('inv-iname').value = '';
   document.getElementById('inv-iqty').value = '';
   document.getElementById('inv-ithresh').value = '';
+}
+
+function submitAddItem() {
+  const name = document.getElementById('inv-iname').value.trim();
+  const quantity = parseInt(document.getElementById('inv-iqty').value) || 0;
+  const unit = document.getElementById('inv-iunit').value;
+  if (!name) { showToast('Please enter item name'); return; }
+
+  const threshold = parseInt(document.getElementById('inv-ithresh').value) || 0;
+
+  createInventoryItem(name, quantity, unit, threshold);
+  renderInventoryList();
+  closeModal('modal-additem');
+  clearAddItemForm();
   showToast('Item added to inventory');
 }
