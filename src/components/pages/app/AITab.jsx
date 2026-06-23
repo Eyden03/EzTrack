@@ -76,6 +76,7 @@ export default function AITab() {
       return {
         reply: data.choices?.[0]?.message?.content || '',
         toolCallsUsed: data.tool_calls_used || [],
+        tables: data.tables || [],
       }
     } catch {
       return null
@@ -104,7 +105,7 @@ export default function AITab() {
 
     await refreshState()
 
-    const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts, tools: result?.toolCallsUsed || [] }
+    const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts, tools: result?.toolCallsUsed || [], tables: result?.tables || [] }
     setMessages(prev => [...prev, aiMsg])
     setIsTyping(false)
   }
@@ -133,6 +134,32 @@ export default function AITab() {
                 <div className="text-[10px] text-gray-400 mb-1">Used: {msg.tools.join(', ')}</div>
               )}
               <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: msg.text }} />
+              {msg.tables?.map((t, ti) => (
+                <div key={ti} className="overflow-x-auto mt-2 mb-1">
+                  <table className="w-full text-xs border-collapse">
+                    <thead>
+                      <tr className="bg-gray-50">
+                        {t.columns.map((col, ci) => (
+                          <th key={ci} className="px-2 py-1.5 text-left font-semibold text-gray-600 border-b border-gray-200">
+                            {col}
+                          </th>
+                        ))}
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {t.rows.map((row, ri) => (
+                        <tr key={ri} className={ri % 2 ? 'bg-gray-50/50' : ''}>
+                          {row.map((cell, ci) => (
+                            <td key={ci} className="px-2 py-1.5 text-gray-700 border-b border-gray-100">
+                              {cell}
+                            </td>
+                          ))}
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))}
               <div className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.ts}</div>
             </div>
           </div>

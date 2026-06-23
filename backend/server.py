@@ -82,6 +82,7 @@ async def chat_loop(messages: list, ctx: dict, tier: str, max_rounds: int = 5):
     msgs = [{"role": "system", "content": system_prompt}] + messages
     conn = db.get_conn()
     tool_calls_used = []
+    tables = []
 
     for _ in range(max_rounds):
         result = await call_llm(msgs, tool_defs)
@@ -90,18 +91,21 @@ async def chat_loop(messages: list, ctx: dict, tier: str, max_rounds: int = 5):
         choice = result.get("choices", [{}])[0]
         msg = choice.get("message", {})
         if choice.get("finish_reason") == "stop" or not msg.get("tool_calls"):
-            return {"reply": msg.get("content") or "", "tool_calls_used": tool_calls_used}
+            return {"reply": msg.get("content") or "", "tool_calls_used": tool_calls_used, "tables": tables}
         msgs.append({"role": "assistant", "content": msg.get("content"), "tool_calls": msg["tool_calls"]})
         for tc in msg["tool_calls"]:
-            tool_calls_used.append(tc["function"]["name"])
+            name = tc["function"]["name"]
+            tool_calls_used.append(name)
             try:
                 func_args = json.loads(tc["function"]["arguments"])
                 func_result = execute(tc["function"]["name"], func_args, conn, ctx)
+                if name == "render_table":
+                    tables.append({"columns": func_args.get("columns", []), "rows": func_args.get("rows", [])})
             except Exception as e:
                 func_result = {"error": str(e)}
             msgs.append({"role": "tool", "tool_call_id": tc["id"], "content": json.dumps(func_result)})
 
-    return {"reply": "I could not complete that request in the available steps. Please try again.", "tool_calls_used": tool_calls_used}
+    return {"reply": "I could not complete that request in the available steps. Please try again.", "tool_calls_used": tool_calls_used, "tables": tables}
 
 # ── REST Endpoints ──
 
@@ -214,6 +218,7 @@ async def chat(data: dict):
     return {
         "choices": [{"message": {"content": result["reply"]}}],
         "tool_calls_used": result.get("tool_calls_used", []),
+        "tables": result.get("tables", []),
     }
 
 @app.post("/api/refresh/{profile_id}")

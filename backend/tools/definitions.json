@@ -16,6 +16,31 @@
     }
   },
   {
+    "name": "render_table",
+    "description": "Present data in a formatted table. Use this instead of using pipes, dashes, or any formatting characters.",
+    "handler": "table",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "columns": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Column headers, e.g. ['Item', 'Quantity', 'Price']"
+        },
+        "rows": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {"type": "string"}
+          },
+          "description": "Data rows, e.g. [['Rice', '50 kg', '₱2,500'], ['Oil', '12 L', '₱1,200']]"
+        }
+      },
+      "required": ["columns", "rows"]
+    }
+  },
+  {
     "name": "list_transactions",
     "description": "View recent income and expense transactions for the business.",
     "handler": "core",
