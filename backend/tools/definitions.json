@@ -1,5 +1,21 @@
 [
   {
+    "name": "calculate",
+    "description": "Perform arithmetic calculations (add, subtract, multiply, divide, percentage). Use this for any math instead of guessing numbers.",
+    "handler": "math",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "expression": {
+          "type": "string",
+          "description": "A mathematical expression using +, -, *, /, %, and parentheses. E.g. (4500 + 1520 + 18000 + 500) - (820 + 380 + 200)"
+        }
+      },
+      "required": ["expression"]
+    }
+  },
+  {
     "name": "list_transactions",
     "description": "View recent income and expense transactions for the business.",
     "handler": "core",
