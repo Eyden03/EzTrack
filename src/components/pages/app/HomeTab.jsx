@@ -5,19 +5,19 @@ import { CONFIG } from '@/config'
 
 const HEARTBEAT_MSGS = {
   simula: {
-    label: 'Weekly Heartbeat',
+    label: 'THE HEARTBEAT',
     time: 'Monday · 8:02 AM',
     text: 'Kumita ka ng <strong>₱6,020</strong> this week and gumastos ng <strong>₱1,200</strong>. Net: <strong>₱4,820</strong>. 5-day streak!',
     action: 'View Report',
   },
   sigla: {
-    label: 'Daily Heartbeat',
+    label: 'THE HEARTBEAT',
     time: 'Today · 8:02 AM',
     text: 'Supplies spending is <strong>18% higher</strong> than last week. Ikaw, pumpa-<strong>₱3,200</strong> na this month. Want to set a budget alert?',
     action: 'Check Budget',
   },
   unlad: {
-    label: '⚠️ Proactive Alert',
+    label: 'THE HEARTBEAT',
     time: 'Today · 8:02 AM',
     text: 'Your profit goal is at <strong>76%</strong>. If supplies cost continues to rise, you may fall <strong>₱3,200</strong> short this month.',
     action: 'View Forecast',
