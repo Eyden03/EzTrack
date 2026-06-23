@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
@@ -6,6 +6,53 @@ import { api } from '@/lib/api'
 import { AI_RESPONSES } from '@/data/aiResponses'
 import { getSuggestionChips } from '@/data/suggestionChips'
 import { toast } from 'sonner'
+
+function ScrollRow({ children }) {
+  const ref = useRef(null)
+  const isDragging = useRef(false)
+  const startX = useRef(0)
+  const scrollStart = useRef(0)
+
+  const onWheel = useCallback((e) => {
+    if (ref.current) {
+      ref.current.scrollLeft += e.deltaY
+      e.preventDefault()
+    }
+  }, [])
+
+  const onMouseDown = useCallback((e) => {
+    isDragging.current = true
+    startX.current = e.pageX
+    scrollStart.current = ref.current?.scrollLeft || 0
+    ref.current?.classList.add('cursor-grabbing')
+    e.preventDefault()
+  }, [])
+
+  const onMouseMove = useCallback((e) => {
+    if (!isDragging.current || !ref.current) return
+    const dx = e.pageX - startX.current
+    ref.current.scrollLeft = scrollStart.current - dx
+  }, [])
+
+  const onMouseUp = useCallback(() => {
+    isDragging.current = false
+    ref.current?.classList.remove('cursor-grabbing')
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      onWheel={onWheel}
+      onMouseDown={onMouseDown}
+      onMouseMove={onMouseMove}
+      onMouseUp={onMouseUp}
+      onMouseLeave={onMouseUp}
+      className="flex gap-1.5 overflow-x-auto flex-nowrap scrollbar-none pb-1 w-full cursor-grab select-none"
+    >
+      {children}
+    </div>
+  )
+}
 
 export default function AITab() {
   const navigate = useNavigate()
@@ -207,14 +254,14 @@ export default function AITab() {
               {chips.map((group, gi) => (
                 <div key={gi}>
                   <div className="text-[10px] font-bold text-gray-400 uppercase mb-1.5">{group.label}</div>
-                  <div className="flex gap-1.5 overflow-x-scroll flex-nowrap scrollbar-none pb-1 w-full">
+                  <ScrollRow>
                     {group.chips.map((chip, ci) => (
                       <button key={ci} onClick={() => handleSend(chip.msg)}
                         className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors flex-shrink-0 whitespace-nowrap">
                         {chip.label}
                       </button>
                     ))}
-                  </div>
+                  </ScrollRow>
                 </div>
               ))}
             </div>
