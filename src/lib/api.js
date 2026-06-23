@@ -33,3 +33,7 @@ async function put(path, data) {
 }
 
 export const api = { get, post, put, del }
+
+export function docUrl(profileId, filename) {
+  return `/api/documents/${profileId}/${filename}`
+}

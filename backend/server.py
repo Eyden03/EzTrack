@@ -5,12 +5,16 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse
 from dotenv import load_dotenv
 
 load_dotenv()
 
 from . import database as db
 from .tools.registry import get_tool_defs, get_tool_list_text, execute
+
+DOCS_DIR = os.path.join(os.path.dirname(__file__), "generated_docs")
+os.makedirs(DOCS_DIR, exist_ok=True)
 
 db.init_db()
 
@@ -229,3 +233,39 @@ def refresh(profile_id: int):
     if not state:
         raise HTTPException(404, "Profile not found")
     return state
+
+import re
+
+@app.get("/api/documents/{profile_id}")
+def list_documents(profile_id: int):
+    files = []
+    if not os.path.isdir(DOCS_DIR):
+        return files
+    for fname in os.listdir(DOCS_DIR):
+        if fname.endswith(".docx") and f"_{profile_id}_" in fname:
+            parts = fname.split("_")
+            dtype = parts[0].capitalize()
+            ts_str = "_".join(parts[2:]).replace(".docx", "") if len(parts) >= 3 else ""
+            title = fname
+            date_str = ""
+            if ts_str:
+                try:
+                    dt = datetime.strptime(ts_str, "%Y%m%d_%H%M%S")
+                    date_str = dt.strftime("%b %d, %Y · %I:%M %p")
+                except ValueError:
+                    date_str = ts_str
+            files.append({"filename": fname, "type": dtype, "title": title, "date": date_str})
+    files.sort(key=lambda x: x["filename"], reverse=True)
+    return files
+
+@app.get("/api/documents/{profile_id}/{filename}")
+def serve_document(profile_id: int, filename: str):
+    safe = os.path.basename(filename)
+    path = os.path.join(DOCS_DIR, safe)
+    if not os.path.exists(path):
+        raise HTTPException(404, "Document not found")
+    return FileResponse(
+        path,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+        filename=safe,
+    )

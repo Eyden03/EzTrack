@@ -4,6 +4,7 @@ __pycache__/
 *.db
 *.db-shm
 *.db-wal
+generated_docs/
 business_plan.md
 costing.md
 product.md

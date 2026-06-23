@@ -209,5 +209,103 @@
       "type": "object",
       "properties": {}
     }
+  },
+  {
+    "name": "generate_receipt",
+    "description": "Generate a printable receipt for a customer purchase with itemized list and payment details.",
+    "handler": "documents",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "customer_name": { "type": "string", "description": "Customer full name" },
+        "customer_contact": { "type": "string", "description": "Customer phone number (optional)" },
+        "items": {
+          "type": "array",
+          "description": "List of items purchased",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "qty": { "type": "integer" },
+              "unit_price": { "type": "number" }
+            },
+            "required": ["description", "qty", "unit_price"]
+          }
+        },
+        "payment_method": { "type": "string", "description": "Cash, GCash, Bank Transfer" },
+        "payment_status": { "type": "string", "description": "paid or partial" }
+      },
+      "required": ["customer_name", "items", "payment_method"]
+    }
+  },
+  {
+    "name": "generate_invoice",
+    "description": "Generate a formal sales invoice with itemized line items, discounts, and tax.",
+    "handler": "documents",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "customer_name": { "type": "string", "description": "Customer full name" },
+        "customer_contact": { "type": "string", "description": "Customer phone number (optional)" },
+        "customer_tin": { "type": "string", "description": "Customer TIN (for VAT, Unlad only)" },
+        "customer_address": { "type": "string", "description": "Customer business address (for VAT)" },
+        "items": {
+          "type": "array",
+          "description": "List of items being invoiced",
+          "items": {
+            "type": "object",
+            "properties": {
+              "description": { "type": "string" },
+              "qty": { "type": "integer" },
+              "unit_price": { "type": "number" }
+            },
+            "required": ["description", "qty", "unit_price"]
+          }
+        },
+        "discount": { "type": "number", "description": "SC/PWD/NAAC discount amount, 0 if none" },
+        "withholding_tax": { "type": "number", "description": "Withholding tax amount, 0 if none" },
+        "payment_method": { "type": "string", "description": "Cash, GCash, Bank Transfer" },
+        "payment_status": { "type": "string", "description": "paid, partial, or unpaid" },
+        "notes": { "type": "string", "description": "Payment terms or notes" }
+      },
+      "required": ["customer_name", "items", "payment_method"]
+    }
+  },
+  {
+    "name": "generate_report",
+    "description": "Generate a sales and financial report. Weekly for Sigla. Monthly for Unlad.",
+    "handler": "documents",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "period": { "type": "string", "description": "e.g. 'June 23-29, 2026' (weekly) or 'June 2026' (monthly)" },
+        "ai_summary": { "type": "string", "description": "2-4 sentence plain-language summary of the period's finances in Taglish" },
+        "total_sales": { "type": "number", "description": "Total income for the period" },
+        "total_expenses": { "type": "number", "description": "Total expenses for the period" },
+        "comparison_text": { "type": "string", "description": "e.g. '+12% vs last week' or '-5% vs last month'" },
+        "strongest_period_label": { "type": "string", "description": "e.g. 'Friday'" },
+        "strongest_period_amount": { "type": "string", "description": "e.g. '₱1,240 avg sales'" },
+        "weakest_period_label": { "type": "string", "description": "e.g. 'Tuesday'" },
+        "weakest_period_amount": { "type": "string", "description": "e.g. '₱580 avg sales'" },
+        "categories": {
+          "type": "array",
+          "description": "Expense breakdown by category",
+          "items": {
+            "type": "object",
+            "properties": {
+              "name": { "type": "string" },
+              "amount": { "type": "number" },
+              "pct": { "type": "string", "description": "e.g. '52%'" }
+            }
+          }
+        },
+        "tip_1": { "type": "string", "description": "First actionable tip" },
+        "tip_2": { "type": "string", "description": "Second actionable tip" }
+      },
+      "required": ["period", "ai_summary", "total_sales", "total_expenses"]
+    }
   }
 ]
