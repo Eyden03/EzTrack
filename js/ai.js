@@ -126,18 +126,47 @@ function keywordReply(msg) {
     : 'I can see your recent transactions. Want me to check if you\'re earning or losing this week?';
 }
 
+/* ── Suggestion chip groups ── */
+function suggestionChips(tier) {
+  const chips = [];
+
+  const readGroup = [
+    { label: '📊 View my transactions', msg: 'Show my recent transactions' },
+    { label: '💰 Am I earning or losing?', msg: 'Am I earning or losing?' },
+    { label: '📦 Check my inventory', msg: 'Show my inventory items' },
+    { label: '⚠️ Am I overspending?', msg: 'Check if I am overspending' },
+  ];
+  chips.push({ label: 'Ask about your money', chips: readGroup });
+
+  if (tier === 'sigla' || tier === 'unlad') {
+    const manageGroup = [
+      { label: '➕ Add ₱500 supplies expense', msg: 'Add a transaction for 500 pesos supplies expense' },
+      { label: '🏪 Add customer Juan', msg: 'Add a customer named Juan with contact 09171234567' },
+      { label: '📋 Set stock alert on noodles', msg: 'Set stock threshold to 15 for noodles' },
+    ];
+    chips.push({ label: 'Manage your business', chips: manageGroup });
+  }
+
+  if (tier === 'unlad') {
+    const planGroup = [
+      { label: '🎯 Set a goal to save ₱50K', msg: 'Set a financial goal to save 50000 pesos by December' },
+      { label: '📈 Forecast my cash flow', msg: 'What is my 30-day cash flow forecast?' },
+      { label: '🧾 Check BIR tax deadlines', msg: 'Check my BIR tax deadlines' },
+      { label: '📦 What needs restocking?', msg: 'What items need restocking?' },
+    ];
+    chips.push({ label: 'Plan ahead', chips: planGroup });
+  }
+
+  return chips;
+}
+
 /* ── Render the AI tab ── */
 function renderAITab() {
   const el = document.getElementById('ai-content');
   if (!el) return;
 
   const remaining = STATE.tier === 'simula' ? STATE.simulaQueriesRemaining : -1;
-
-  const qbs = STATE.tier === 'simula'
-    ? ['Am I earning or losing?', 'Can I restock this week?']
-    : STATE.tier === 'unlad'
-      ? ['Can I afford to hire?', 'Am I on track for my goal?', 'Forecast next 30 days', 'BIR deadline status', 'P&L this month']
-      : ['How much did I spend last week?', 'Which category is highest?', 'Am I earning or losing?', 'Can I restock this week?'];
+  const groups = suggestionChips(STATE.tier);
 
   const chatHtml = `
     <div class="chat-counter" id="ai-counter">
@@ -152,8 +181,14 @@ function renderAITab() {
         <div class="chat-ts ${m.role}-ts">${m.ts}</div>
       `).join('')}
     </div>
-    <div class="quick-btns" id="ai-quick-btns">
-      ${qbs.map(q => `<button class="qb" onclick="sendAI('${q}')">${q}</button>`).join('')}
+    <div class="sug-groups" id="ai-sug-groups">
+      ${groups.map(g => `
+        <div class="sug-group">
+          <div class="sug-label">${g.label}</div>
+          <div class="sug-chips">
+            ${g.chips.map(c => `<button class="qb" onclick="sendAI('${c.msg.replace(/'/g, "\\'")}')">${c.label}</button>`).join('')}
+          </div>
+        </div>`).join('')}
     </div>
     <div class="chat-bar">
       ${remaining === 0
@@ -218,8 +253,8 @@ async function sendAI(msg) {
     if (STATE.simulaQueriesRemaining <= 0) {
       const bar = document.querySelector('.chat-bar');
       if (bar) bar.innerHTML = '<div class="chat-bar-locked">You\'ve used all your AI queries this month. <a onclick="goTo(\'page-plans\');renderPlans();">Upgrade to Sigla</a> for unlimited access.</div>';
-      const btns = document.getElementById('ai-quick-btns');
-      if (btns) btns.innerHTML = '';
+      const sug = document.getElementById('ai-sug-groups');
+      if (sug) sug.innerHTML = '';
     }
   }
 }

@@ -533,6 +533,13 @@
 }
 .cc-text   { font-weight: 600; color: var(--blue-700); }
 .cc-upgrade { font-weight: 700; color: var(--blue-600); cursor: pointer; text-decoration: underline; }
+.sug-groups { padding: 8px 16px 0; }
+.sug-group { margin-bottom: 12px; }
+.sug-label {
+  font-size: 11px; font-weight: 700; color: var(--gray-400);
+  text-transform: uppercase; letter-spacing: .6px; margin-bottom: 6px;
+}
+.sug-chips { display: flex; flex-wrap: wrap; gap: 6px; }
 .chat-bar-locked {
   width: 100%; text-align: center;
   padding: 11px 15px; font-size: 13px; color: var(--gray-500);

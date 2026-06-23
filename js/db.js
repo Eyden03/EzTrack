@@ -15,11 +15,11 @@ const DB = {
     });
     const blob = this._loadBlob();
     this._db = blob ? new this._sql.Database(blob) : new this._sql.Database();
+    this._createTables();
     if (!blob) {
-      this._createTables();
       this._seed();
-      this._saveBlob();
     }
+    this._saveBlob();
   },
 
   /* ── Schema ── */
