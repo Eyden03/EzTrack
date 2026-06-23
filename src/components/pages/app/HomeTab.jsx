@@ -1,3 +1,4 @@
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import LogTransactionModal from '@/components/modals/LogTransactionModal'
@@ -61,6 +62,7 @@ export default function HomeTab() {
 
 function HomeTabContent() {
   const { state } = useApp()
+  const navigate = useNavigate()
   const tier = state.tier
   const msgs = HEARTBEAT_MSGS[tier]
 
@@ -76,8 +78,8 @@ function HomeTabContent() {
         </div>
         <p className="text-sm text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: msgs.text }} />
         <div className="flex gap-2 mt-4">
-          <button className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">{msgs.action}</button>
-          <button className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200 transition-colors">Ask AI</button>
+          <button onClick={() => navigate('/app/reports')} className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">{msgs.action}</button>
+          <button onClick={() => navigate('/app/ai')} className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200 transition-colors">Ask AI</button>
         </div>
       </div>
 
