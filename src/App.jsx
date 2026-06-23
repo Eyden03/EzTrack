@@ -1,5 +1,4 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
-import { useDB } from '@/hooks/useDB'
 import Splash from '@/components/pages/Splash'
 import LoginPage from '@/components/pages/LoginPage'
 import RegisterPage from '@/components/pages/RegisterPage'
@@ -14,8 +13,6 @@ import AITab from '@/components/pages/app/AITab'
 import ProfileTab from '@/components/pages/app/ProfileTab'
 
 export default function App() {
-  useDB()
-
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/splash" replace />} />

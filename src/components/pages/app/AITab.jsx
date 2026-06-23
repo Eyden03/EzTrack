@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
+import { api } from '@/lib/api'
 import { AI_RESPONSES } from '@/data/aiResponses'
 import { getSuggestionChips } from '@/data/suggestionChips'
-import { addTransaction, addInventoryItem, addCustomer, addGoal, deleteTransaction } from '@/lib/db'
 import { toast } from 'sonner'
 
 export default function AITab() {
@@ -26,7 +26,7 @@ export default function AITab() {
     for (const key of Object.keys(AI_RESPONSES)) {
       if (lower.includes(key)) return AI_RESPONSES[key]
     }
-    return "Thanks for your message! I'm currently in offline mode. Please upgrade to Sigla or Unlad for full AI chat with live data access. 🚀"
+    return "Thanks for your message! I'm currently in offline mode. Please upgrade to Sigla or Unlad for full AI chat with live data access."
   }
 
   function buildContext() {
@@ -40,6 +40,7 @@ export default function AITab() {
     state.transactions.filter(t => t.type === 'exp').forEach(t => { cats[t.cat] = (cats[t.cat] || 0) + t.amt })
     const topCat = Object.entries(cats).sort((a, b) => b[1] - a[1])[0]
     return {
+      profileId: state.profileId,
       bizName: state.business?.name || 'Unnamed Business',
       tier: state.tier,
       cashToday: state.transactions.filter(t => t.date === new Date().toISOString().slice(0, 10))
@@ -55,6 +56,13 @@ export default function AITab() {
     }
   }
 
+  async function refreshState() {
+    try {
+      const fresh = await api.post('/refresh/' + state.profileId)
+      dispatch({ type: 'LOGIN', payload: fresh })
+    } catch {}
+  }
+
   async function callLLM(messages, ctx) {
     try {
       const res = await fetch('/api/chat', {
@@ -64,55 +72,14 @@ export default function AITab() {
       })
       if (!res.ok) return null
       const data = await res.json()
-      return { reply: data.choices?.[0]?.message?.content || '', mutations: data.mutations || [] }
+      return { reply: data.choices?.[0]?.message?.content || '' }
     } catch {
       return null
     }
   }
 
-  function applyMutations(mutations) {
-    for (const m of mutations) {
-      switch (m.action) {
-        case 'add_transaction': {
-          const tx = { ...m.data, profile_id: state.profileId, time: m.data.time || new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) }
-          const id = addTransaction(tx)
-          dispatch({ type: 'ADD_TRANSACTION', payload: { id, ...tx } })
-          break
-        }
-        case 'delete_transaction': {
-          deleteTransaction(m.data.id)
-          dispatch({ type: 'DELETE_TRANSACTION', payload: m.data.id })
-          break
-        }
-        case 'add_inventory_item': {
-          const item = { ...m.data, profile_id: state.profileId }
-          const id2 = addInventoryItem(item)
-          dispatch({ type: 'ADD_INVENTORY_ITEM', payload: { id: id2, ...item } })
-          break
-        }
-        case 'set_stock_threshold': {
-          dispatch({ type: 'SET_STOCK_THRESHOLD', payload: m.data })
-          break
-        }
-        case 'add_customer': {
-          const c = { ...m.data, profile_id: state.profileId }
-          const id3 = addCustomer(c)
-          dispatch({ type: 'ADD_CUSTOMER', payload: { id: id3, ...c } })
-          break
-        }
-        case 'set_financial_goal': {
-          const g = { ...m.data, profile_id: state.profileId }
-          const id4 = addGoal(g)
-          dispatch({ type: 'ADD_GOAL', payload: { id: id4, ...g } })
-          break
-        }
-      }
-    }
-  }
-
   async function handleSend(text) {
     if (!text.trim()) return
-
     if (isSimulaExhausted) {
       toast.error('No AI queries remaining. Upgrade to Sigla for unlimited access.')
       return
@@ -131,7 +98,7 @@ export default function AITab() {
     const result = await callLLM(chatHistory, ctx)
     const reply = result ? result.reply : keywordReply(text.trim())
 
-    if (result?.mutations?.length) applyMutations(result.mutations)
+    await refreshState()
 
     const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts }
     setMessages(prev => [...prev, aiMsg])
@@ -157,13 +124,7 @@ export default function AITab() {
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div
-              className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${
-                msg.role === 'user'
-                  ? 'bg-blue-600 text-white rounded-br-md'
-                  : 'bg-gray-100 text-gray-800 rounded-bl-md'
-              }`}
-            >
+            <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}>
               <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: msg.text }} />
               <div className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.ts}</div>
             </div>
@@ -189,11 +150,8 @@ export default function AITab() {
               <div className="text-[10px] font-bold text-gray-400 uppercase mb-1.5">{group.label}</div>
               <div className="flex flex-wrap gap-1.5">
                 {group.chips.map((chip, ci) => (
-                  <button
-                    key={ci}
-                    onClick={() => handleSend(chip.msg)}
-                    className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors"
-                  >
+                  <button key={ci} onClick={() => handleSend(chip.msg)}
+                    className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors">
                     {chip.label}
                   </button>
                 ))}
@@ -213,19 +171,11 @@ export default function AITab() {
       ) : (
         <div className="px-4 py-3 border-t border-gray-100">
           <div className="flex gap-2">
-            <input
-              type="text"
-              value={input}
-              onChange={e => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
+            <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="Ask about your finances..."
-              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors"
-            />
-            <button
-              onClick={() => handleSend(input)}
-              disabled={!input.trim()}
-              className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 transition-colors"
-            >
+              className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
+            <button onClick={() => handleSend(input)} disabled={!input.trim()}
+              className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 transition-colors">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
             </button>
           </div>

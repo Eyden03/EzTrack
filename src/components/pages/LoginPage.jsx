@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
-import { getProfiles, loadState } from '@/lib/db'
+import { api } from '@/lib/api'
 import ProfileCard from '@/components/shared/ProfileCard'
 
 export default function LoginPage() {
@@ -10,12 +10,11 @@ export default function LoginPage() {
   const [profiles, setProfiles] = useState([])
 
   useEffect(() => {
-    setProfiles(getProfiles())
+    api.get('/profiles').then(setProfiles).catch(() => {})
   }, [])
 
-  function handleLogin(profileId) {
-    const state = loadState(profileId)
-    if (!state) return
+  async function handleLogin(profileId) {
+    const state = await api.post('/login/' + profileId)
     dispatch({ type: 'LOGIN', payload: state })
     navigate('/app/home', { replace: true })
   }
