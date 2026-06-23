@@ -5,13 +5,7 @@ import NotificationsModal from '@/components/modals/NotificationsModal'
 
 function LogoIcon() {
   return (
-    <svg viewBox="0 0 17 17" fill="none" className="w-[17px] h-[17px]">
-      <rect x="1" y="4" width="10" height="9" rx="2" fill="rgba(255,255,255,0.3)" />
-      <rect x="2.5" y="5.5" width="7" height="1.5" rx=".75" fill="white" />
-      <rect x="2.5" y="8.5" width="5" height="1.2" rx=".6" fill="rgba(255,255,255,0.55)" />
-      <circle cx="13.5" cy="12" r="3.5" fill="rgba(255,255,255,0.85)" />
-      <path d="M12 12l1.2 1.2L15.5 10.5" stroke="#1D4ED8" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
+    <img src="/assets/images/logo.jpg" alt="EzTrack" className="w-[30px] h-[30px] rounded-lg object-cover" />
   )
 }
 
@@ -22,7 +16,7 @@ export default function TopBar() {
   return (
     <div className="bg-blue-800 px-5 py-3.5 flex items-center justify-between shrink-0">
       <div className="flex items-center gap-2.5">
-        <div className="w-[30px] h-[30px] rounded-lg bg-white/20 flex items-center justify-center shrink-0">
+        <div className="w-[30px] h-[30px] rounded-lg overflow-hidden shrink-0">
           <LogoIcon />
         </div>
         <div>

@@ -24,9 +24,9 @@ export const CONFIG = {
   DEFAULT_TIER: TIERS.SIMULA,
   DEFAULT_BIZ_NAME: 'My Business',
   TIER_META: {
-    simula: { label: 'Simula – Free', color: '#4ADE80' },
-    sigla: { label: 'Sigla – ₱249/mo', color: '#60A5FA' },
-    unlad: { label: 'Unlad – ₱699/mo', color: '#FBBF24' },
+    simula: { label: 'Simula', color: '#4ADE80' },
+    sigla: { label: 'Sigla', color: '#60A5FA' },
+    unlad: { label: 'Unlad', color: '#FBBF24' },
   },
   BIZ_ICONS: { sari: '🏪', food: '🍱', online: '📦', services: '🔧', retail: '🛍️', other: '💼' },
   TIER_CARD_LABELS: {
