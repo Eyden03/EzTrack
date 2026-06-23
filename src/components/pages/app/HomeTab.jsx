@@ -54,18 +54,20 @@ export default function HomeTab() {
 
   return (
     <div className="px-4 pt-4 pb-6">
-      <div className="rounded-2xl border border-gray-200 bg-white p-5 relative overflow-hidden mb-4">
-        <div className="absolute top-0 left-0 w-24 h-24 bg-blue-500/5 rounded-full -translate-x-8 -translate-y-8" />
-        <div className="absolute bottom-0 right-0 w-16 h-16 bg-blue-500/5 rounded-full translate-x-6 translate-y-6" />
-        <div className="flex items-center gap-2 mb-3">
-          <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
-          <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wide">{msgs.label}</span>
-          <span className="text-[11px] text-gray-300 ml-auto">{msgs.time}</span>
+      <div className="rounded-[20px] bg-gradient-to-br from-blue-600 to-blue-800 p-5 relative overflow-hidden text-white mb-4">
+        <div className="absolute top-[-30px] right-[-30px] w-[130px] h-[130px] rounded-full bg-blue-400/18 pointer-events-none" />
+        <div className="absolute bottom-[-40px] left-[-20px] w-[100px] h-[100px] rounded-full bg-blue-400/10 pointer-events-none" />
+        <div className="flex items-center justify-between mb-2">
+          <div className="flex items-center gap-[5px]">
+            <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+            <span className="text-[11px] font-bold tracking-[.7px] uppercase opacity-70">{msgs.label}</span>
+          </div>
+          <span className="text-[11px] opacity-55">{msgs.time}</span>
         </div>
-        <p className="text-sm text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: msgs.text }} />
-        <div className="flex gap-2 mt-4">
-          <button onClick={() => navigate('/app/reports')} className="px-4 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">{msgs.action}</button>
-          <button onClick={() => navigate('/app/ai')} className="px-4 py-2 rounded-lg bg-gray-100 text-gray-600 text-xs font-bold hover:bg-gray-200 transition-colors">Ask AI</button>
+        <p className="text-sm leading-relaxed opacity-95 mb-4" dangerouslySetInnerHTML={{ __html: msgs.text }} />
+        <div className="flex gap-2">
+          <button onClick={() => navigate('/app/reports')} className="px-4 py-2 rounded-lg bg-white text-blue-700 text-xs font-bold hover:bg-white/80 transition-colors">{msgs.action}</button>
+          <button onClick={() => navigate('/app/ai')} className="px-4 py-2 rounded-lg border border-white/30 text-white text-xs font-bold hover:bg-white/15 transition-colors">Ask AI</button>
         </div>
       </div>
 
