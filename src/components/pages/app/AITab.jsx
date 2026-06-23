@@ -207,7 +207,7 @@ export default function AITab() {
               {chips.map((group, gi) => (
                 <div key={gi}>
                   <div className="text-[10px] font-bold text-gray-400 uppercase mb-1.5">{group.label}</div>
-                  <div className="flex gap-1.5 overflow-x-auto flex-nowrap scrollbar-none pb-1">
+                  <div className="flex gap-1.5 overflow-x-scroll flex-nowrap scrollbar-none pb-1 w-full">
                     {group.chips.map((chip, ci) => (
                       <button key={ci} onClick={() => handleSend(chip.msg)}
                         className="text-[11px] px-3 py-1.5 rounded-full border border-gray-200 text-gray-600 hover:bg-gray-50 transition-colors flex-shrink-0 whitespace-nowrap">
