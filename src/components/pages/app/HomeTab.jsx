@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
@@ -49,6 +50,7 @@ export default function HomeTab() {
   const navigate = useNavigate()
   const tier = state.tier
   const msgs = HEARTBEAT_MSGS[tier]
+  const [showAllTx, setShowAllTx] = useState(false)
 
   return (
     <div className="px-4 pt-4 pb-6">
@@ -100,7 +102,7 @@ export default function HomeTab() {
 
       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide px-1 mb-2">Recent Transactions</div>
       <div className="space-y-2 mb-4">
-        {state.transactions.slice(0, tier === CONFIG.TIERS.SIMULA ? CONFIG.TX_LIST_LIMIT_SIMULA : CONFIG.TX_LIST_LIMIT_OTHER).map(tx => (
+        {state.transactions.slice(0, showAllTx ? (tier === CONFIG.TIERS.SIMULA ? CONFIG.TX_LIST_LIMIT_SIMULA : CONFIG.TX_LIST_LIMIT_OTHER) : 3).map(tx => (
           <div key={tx.id} className="flex items-center gap-3 rounded-xl border border-gray-100 bg-white p-3">
             <div className={`w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0 ${tx.type === 'inc' ? 'bg-blue-50' : 'bg-red-50'}`}>
               <svg viewBox="0 0 24 24" fill="none" stroke={tx.type === 'inc' ? '#2563EB' : '#DC2626'} strokeWidth="2.5" className="w-4 h-4">
@@ -116,6 +118,14 @@ export default function HomeTab() {
             </div>
           </div>
         ))}
+        {state.transactions.length > 3 && (
+          <button
+            onClick={() => setShowAllTx(!showAllTx)}
+            className="w-full text-xs text-blue-600 font-semibold py-2 hover:text-blue-700 transition-colors"
+          >
+            {showAllTx ? 'Show less' : `Show all (${state.transactions.length} transactions)`}
+          </button>
+        )}
       </div>
 
       <div className="text-[11px] text-gray-400 px-1 mb-4">
