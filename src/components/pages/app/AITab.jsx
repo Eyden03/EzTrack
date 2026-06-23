@@ -66,7 +66,7 @@ export default function AITab() {
   const isSimulaExhausted = tier === CONFIG.TIERS.SIMULA && queriesRemaining <= 0
 
   useEffect(() => {
-    if (messages.length === 0) {
+    if (state.chatMessages.length === 0) {
       const weekTx = state.transactions.filter(t => {
         const d = new Date(t.date)
         const weekAgo = new Date()
@@ -89,7 +89,7 @@ export default function AITab() {
       }
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: { role: 'ai', text, ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) } })
     }
-  }, []) // eslint-disable-line
+  }, [state.chatMessages.length])
 
   function keywordReply(msg) {
     const lower = msg.toLowerCase()
