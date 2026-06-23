@@ -15,6 +15,7 @@ const STATE = {
   transactions: [],
   nextTxId: 1,
   inventory: [],
+  simulaQueriesRemaining: 10,
 };
 
 /* Weekly bar-chart data (replace with computed values in production) */
@@ -52,8 +53,9 @@ const PLANS = [
       '1 business profile',
       'Offline logging with cloud sync',
       'Self-serve help center',
+      'Limited AI queries (10/month)',
     ],
-    notIncluded:['Expense categories','Monthly reports','Invoice generator','AI chat assistant','Tax tools'],
+    notIncluded:['Expense categories','Monthly reports','Invoice generator','Unlimited AI chat','Tax tools'],
   },
   {
     id:'sigla',
