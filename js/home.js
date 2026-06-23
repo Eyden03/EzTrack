@@ -15,7 +15,7 @@ function renderHomeTab() {
 
 /* ── Topbar tier pill ── */
 function renderTopbar() {
-  const m   = TIER_META[STATE.tier];
+  const m   = CONFIG.TIER_META[STATE.tier];
   const el  = document.getElementById('topbar-tier-pill');
   if (!el) return;
   el.innerHTML = `
@@ -111,14 +111,14 @@ function renderInsight() {
     <line x1="12" y1="8" x2="12.01" y2="8"/>
   </svg>`;
 
-  if (STATE.tier === 'simula') {
+  if (STATE.tier === CONFIG.TIERS.SIMULA) {
     el.innerHTML = `
       <div class="insight-banner">
         <div class="ib-row">${infoIcon}<span class="ib-title">Weekly Insight</span></div>
         <div class="ib-text">Ang pinakamalaking gastos mo ngayong linggo ay
           <strong>Supplies — ₱1,200</strong>. Mas mababa ito vs last week (₱1,650). Maganda ang trend!</div>
       </div>`;
-  } else if (STATE.tier === 'sigla') {
+  } else if (STATE.tier === CONFIG.TIERS.SIGLA) {
     el.innerHTML = `
       <div class="insight-banner">
         <div class="ib-row">${infoIcon}<span class="ib-title">2 Tips This Week</span></div>
@@ -146,19 +146,19 @@ function renderTxList() {
   </svg>`;
 
   // Show fewer rows on the free tier
-  const limit   = STATE.tier === 'simula' ? 5 : 8;
+  const limit   = STATE.tier === CONFIG.TIERS.SIMULA ? 5 : 8;
   const visible = STATE.transactions.slice(0, limit);
   const el      = document.getElementById('home-txlist');
   if (!el) return;
 
   el.innerHTML = visible.map(tx => `
     <div class="tx-item">
-      <div class="tx-ico ${tx.type}">${tx.type === 'inc' ? incSVG : expSVG}</div>
+      <div class="tx-ico ${tx.type}">${tx.type === CONFIG.TX.INCOME ? incSVG : expSVG}</div>
       <div class="tx-info">
         <div class="tx-name">${tx.desc}</div>
         <div class="tx-meta">${tx.date} · ${tx.time}${tx.cat ? ' · ' + tx.cat : ''}</div>
       </div>
-      <div class="tx-amt ${tx.type}">${tx.type === 'inc' ? '+' : '-'}₱${tx.amt.toLocaleString()}</div>
+      <div class="tx-amt ${tx.type}">${tx.type === CONFIG.TX.INCOME ? '+' : '-'}₱${tx.amt.toLocaleString()}</div>
     </div>`
   ).join('');
 }
@@ -169,11 +169,11 @@ function renderHomeTierExtras() {
   if (!el) return;
 
   let h = `<div style="padding:2px 20px 8px;font-size:12px;color:var(--gray-400);">
-    ${STATE.tier === 'simula' ? 'Transaction limit: 150/month (67 used)' : 'Unlimited transactions'}
+    ${STATE.tier === CONFIG.TIERS.SIMULA ? 'Transaction limit: 150/month (67 used)' : 'Unlimited transactions'}
   </div>`;
 
   /* Unlad: goal tracker + BIR alert + payroll */
-  if (STATE.tier === 'unlad') {
+  if (STATE.tier === CONFIG.TIERS.UNLAD) {
     h += `
       <div class="sec-label">PROFIT GOAL</div>
       <div class="goal-card">
@@ -211,7 +211,7 @@ function renderHomeTierExtras() {
   }
 
   /* Sigla: invoices section */
-  if (STATE.tier === 'sigla') {
+  if (STATE.tier === CONFIG.TIERS.SIGLA) {
     h += `
       <div class="sec-label">INVOICES</div>
       <div class="inv-card">
@@ -237,7 +237,7 @@ function renderHomeTierExtras() {
   }
 
   /* Simula: upgrade banner */
-  if (STATE.tier === 'simula') {
+  if (STATE.tier === CONFIG.TIERS.SIMULA) {
     h += `
       <div class="divider"></div>
       <div class="upgrade-cta" onclick="goTo('page-plans');renderPlans();">

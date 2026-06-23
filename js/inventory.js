@@ -33,7 +33,7 @@ function renderInventoryExtras() {
   const el = document.getElementById('inv-tier-extras');
   if (!el) return;
 
-  if (STATE.tier === 'sigla') {
+  if (STATE.tier === CONFIG.TIERS.SIGLA) {
     el.innerHTML = `
       <div class="sec-label">LOW STOCK ALERTS</div>
       <div class="insight-banner">
@@ -44,7 +44,7 @@ function renderInventoryExtras() {
         <div class="ib-text">Instant Noodles (6 left, min: 10) and Shampoo Sachet (0 left, min: 12). Consider ordering before Friday to avoid stockout during weekend.</div>
       </div>`;
 
-  } else if (STATE.tier === 'unlad') {
+  } else if (STATE.tier === CONFIG.TIERS.UNLAD) {
     el.innerHTML = `
       <div class="sec-label">AI RESTOCK REMINDER</div>
       <div class="insight-banner">
@@ -77,7 +77,7 @@ function renderInventoryExtras() {
       </div>`;
   }
 
-  if (STATE.tier === 'sigla' || STATE.tier === 'unlad') {
+  if (STATE.tier === CONFIG.TIERS.SIGLA || STATE.tier === CONFIG.TIERS.UNLAD) {
     const threshGrp = document.getElementById('inv-thresh-grp');
     if (threshGrp) threshGrp.style.display = 'block';
   }

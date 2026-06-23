@@ -8,13 +8,13 @@ function renderReportsTab() {
   renderPrintBtn();
 
   /* Compute totals from live transactions */
-  const totalInc = STATE.transactions.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0);
-  const totalExp = STATE.transactions.filter(t => t.type === 'exp').reduce((s, t) => s + t.amt, 0);
+  const totalInc = STATE.transactions.filter(t => t.type === CONFIG.TX.INCOME).reduce((s, t) => s + t.amt, 0);
+  const totalExp = STATE.transactions.filter(t => t.type === CONFIG.TX.EXPENSE).reduce((s, t) => s + t.amt, 0);
 
   const setTxt = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  setTxt('rpt-income',   '₱' + totalInc.toLocaleString());
-  setTxt('rpt-expenses', '₱' + totalExp.toLocaleString());
-  setTxt('rpt-net', (totalInc - totalExp >= 0 ? '+' : '') + '₱' + (totalInc - totalExp).toLocaleString());
+  setTxt('rpt-income',   CONFIG.CURRENCY_SYMBOL + totalInc.toLocaleString());
+  setTxt('rpt-expenses', CONFIG.CURRENCY_SYMBOL + totalExp.toLocaleString());
+  setTxt('rpt-net', (totalInc - totalExp >= 0 ? '+' : '') + CONFIG.CURRENCY_SYMBOL + (totalInc - totalExp).toLocaleString());
 
   /* Streak dots */
   const days = document.getElementById('streak-days');
@@ -26,10 +26,10 @@ function renderReportsTab() {
 function renderBarChart() {
   const el = document.getElementById('main-barchart');
   if (!el) return;
-  const maxV = Math.max(...WEEKDATA.map(d => Math.max(d.inc, d.exp)));
+  const maxV = Math.max(...WEEKDATA.map(d => Math.max(d.income, d.expense)));
   el.innerHTML = WEEKDATA.map(d => {
-    const ih = Math.round((d.inc / maxV) * 106);
-    const eh = Math.round((d.exp / maxV) * 106);
+    const ih = Math.round((d.income / maxV) * CONFIG.BAR_CHART_HEIGHT_PX);
+    const eh = Math.round((d.expense / maxV) * CONFIG.BAR_CHART_HEIGHT_PX);
     return `
       <div class="bc-col">
         <div class="bc-bars">
@@ -61,31 +61,31 @@ function renderPrintBtn() {
 }
 
 function generateReport() {
-  const biz  = STATE.biz || { name: 'My Business' };
+  const biz  = STATE.business || { name: 'My Business' };
   const user = STATE.user || { name: 'User' };
   const now  = new Date();
-  const dateStr = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+  const dateStr = now.toLocaleDateString(CONFIG.LOCALE, { year: 'numeric', month: 'long', day: 'numeric' });
 
-  const totalInc = STATE.transactions.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0);
-  const totalExp = STATE.transactions.filter(t => t.type === 'exp').reduce((s, t) => s + t.amt, 0);
+  const totalInc = STATE.transactions.filter(t => t.type === CONFIG.TX.INCOME).reduce((s, t) => s + t.amt, 0);
+  const totalExp = STATE.transactions.filter(t => t.type === CONFIG.TX.EXPENSE).reduce((s, t) => s + t.amt, 0);
   const net      = totalInc - totalExp;
-  const maxV     = Math.max(...WEEKDATA.map(d => Math.max(d.inc, d.exp)));
+  const maxV     = Math.max(...WEEKDATA.map(d => Math.max(d.income, d.expense)));
 
   const dayRows = WEEKDATA.map(d => `
     <tr>
       <td>${d.day}</td>
-      <td style="text-align:right;">₱${d.inc.toLocaleString()}</td>
-      <td style="text-align:right;">₱${d.exp.toLocaleString()}</td>
-      <td style="text-align:right;font-weight:${d.inc - d.exp >= 0 ? '600' : '600'};color:${d.inc - d.exp >= 0 ? 'var(--blue-600)' : 'var(--red-600)'}">${d.inc - d.exp >= 0 ? '+' : ''}₱${(d.inc - d.exp).toLocaleString()}</td>
+      <td style="text-align:right;">₱${d.income.toLocaleString()}</td>
+      <td style="text-align:right;">₱${d.expense.toLocaleString()}</td>
+      <td style="text-align:right;font-weight:${d.income - d.expense >= 0 ? '600' : '600'};color:${d.income - d.expense >= 0 ? 'var(--blue-600)' : 'var(--red-600)'}">${d.income - d.expense >= 0 ? '+' : ''}₱${(d.income - d.expense).toLocaleString()}</td>
     </tr>`).join('');
 
-  const weekInc = WEEKDATA.reduce((s, d) => s + d.inc, 0);
-  const weekExp = WEEKDATA.reduce((s, d) => s + d.exp, 0);
+  const weekInc = WEEKDATA.reduce((s, d) => s + d.income, 0);
+  const weekExp = WEEKDATA.reduce((s, d) => s + d.expense, 0);
 
   const txRows = STATE.transactions.slice(0, 10).map(tx => `
     <div class="pc-tx-item">
       <span class="pc-tx-name">${tx.desc}</span>
-      <span class="pc-tx-amt ${tx.type}">${tx.type === 'inc' ? '+' : '-'}₱${tx.amt.toLocaleString()}</span>
+      <span class="pc-tx-amt ${tx.type}">${tx.type === CONFIG.TX.INCOME ? '+' : '-'}₱${tx.amt.toLocaleString()}</span>
     </div>`).join('');
 
   const content = document.getElementById('print-content');
@@ -153,7 +153,7 @@ function renderReportsTierExtras() {
   const el = document.getElementById('reports-tier-extras');
   if (!el) return;
 
-  if (STATE.tier === 'simula') {
+  if (STATE.tier === CONFIG.TIERS.SIMULA) {
     el.innerHTML = `
       <div class="sec-label">DAILY SUMMARY</div>
       <div class="card">
@@ -180,7 +180,7 @@ function renderReportsTierExtras() {
         </svg>
       </div>`;
 
-  } else if (STATE.tier === 'sigla') {
+  } else if (STATE.tier === CONFIG.TIERS.SIGLA) {
     const cats = [
       ['Supplies',     '₱3,200', 52],
       ['Labor',        '₱1,800', 29],

@@ -13,19 +13,19 @@ function buildAIContext() {
 
   /* Cash today: net from today's transactions */
   const todayTxs = txs.filter(t => t.date === today);
-  const cashToday = todayTxs.reduce((s, t) => s + (t.type === 'inc' ? t.amt : -t.amt), 0);
+  const cashToday = todayTxs.reduce((s, t) => s + (t.type === CONFIG.TX.INCOME ? t.amt : -t.amt), 0);
 
   /* Weekly totals (last 7 days from today) */
   const weekAgo = new Date(now);
   weekAgo.setDate(weekAgo.getDate() - 7);
   const weekStart = weekAgo.toISOString().split('T')[0];
   const weekTxs = txs.filter(t => t.date >= weekStart);
-  const weeklyIncome = weekTxs.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0);
-  const weeklyExpenses = weekTxs.filter(t => t.type === 'exp').reduce((s, t) => s + t.amt, 0);
+  const weeklyIncome = weekTxs.filter(t => t.type === CONFIG.TX.INCOME).reduce((s, t) => s + t.amt, 0);
+  const weeklyExpenses = weekTxs.filter(t => t.type === CONFIG.TX.EXPENSE).reduce((s, t) => s + t.amt, 0);
 
   /* Top expense category */
   const expByCat = {};
-  txs.filter(t => t.type === 'exp' && t.cat).forEach(t => {
+  txs.filter(t => t.type === CONFIG.TX.EXPENSE && t.cat).forEach(t => {
     expByCat[t.cat] = (expByCat[t.cat] || 0) + t.amt;
   });
   let topCategory = '';
@@ -36,7 +36,7 @@ function buildAIContext() {
 
   return {
     profileId: STATE.profileId,
-    bizName: STATE.biz?.name || '',
+    bizName: STATE.business?.name || '',
     tier: STATE.tier,
     cashToday,
     weeklyIncome,
@@ -138,7 +138,7 @@ function suggestionChips(tier) {
   ];
   chips.push({ label: 'Ask about your money', chips: readGroup });
 
-  if (tier === 'sigla' || tier === 'unlad') {
+  if (tier === CONFIG.TIERS.SIGLA || tier === CONFIG.TIERS.UNLAD) {
     const manageGroup = [
       { label: '➕ Add ₱500 supplies expense', msg: 'Add a transaction for 500 pesos supplies expense' },
       { label: '🏪 Add customer Juan', msg: 'Add a customer named Juan with contact 09171234567' },
@@ -147,7 +147,7 @@ function suggestionChips(tier) {
     chips.push({ label: 'Manage your business', chips: manageGroup });
   }
 
-  if (tier === 'unlad') {
+  if (tier === CONFIG.TIERS.UNLAD) {
     const planGroup = [
       { label: '🎯 Set a goal to save ₱50K', msg: 'Set a financial goal to save 50000 pesos by December' },
       { label: '📈 Forecast my cash flow', msg: 'What is my 30-day cash flow forecast?' },
@@ -165,7 +165,7 @@ function renderAITab() {
   const el = document.getElementById('ai-content');
   if (!el) return;
 
-  const remaining = STATE.tier === 'simula' ? STATE.simulaQueriesRemaining : -1;
+  const remaining = STATE.tier === CONFIG.TIERS.SIMULA ? STATE.simulaQueriesRemaining : -1;
   const groups = suggestionChips(STATE.tier);
 
   const chatHtml = `
@@ -212,14 +212,14 @@ async function sendAI(msg) {
   const msgsEl = document.getElementById('chat-msgs');
   if (!msgsEl) return;
 
-  if (STATE.tier === 'simula' && STATE.simulaQueriesRemaining <= 0) {
+  if (STATE.tier === CONFIG.TIERS.SIMULA && STATE.simulaQueriesRemaining <= 0) {
     showToast('No AI queries remaining. Upgrade to Sigla for unlimited access.');
     return;
   }
 
-  const now = new Date().toLocaleTimeString('en-PH', { hour: '2-digit', minute: '2-digit' });
+  const now = new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: '2-digit', minute: '2-digit' });
 
-  if (STATE.tier === 'simula') STATE.simulaQueriesRemaining--;
+  if (STATE.tier === CONFIG.TIERS.SIMULA) STATE.simulaQueriesRemaining--;
 
   msgsEl.innerHTML += `<div class="chat-msg user">${msg}</div><div class="chat-ts user-ts">${now}</div>`;
   msgsEl.innerHTML += `<div class="chat-msg ai" id="typing-indicator">Checking your records…</div>`;
@@ -240,7 +240,7 @@ async function sendAI(msg) {
   AI_CHAT.messages.push({ role: 'user', text: msg, ts: now }, { role: 'ai', text: reply, ts: now });
 
   /* Update counter badge for Simula */
-  if (STATE.tier === 'simula') {
+  if (STATE.tier === CONFIG.TIERS.SIMULA) {
     const counter = document.getElementById('ai-counter');
     if (counter) {
       const r = STATE.simulaQueriesRemaining;

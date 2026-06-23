@@ -19,6 +19,6 @@ window.addEventListener('load', async () => {
     setTimeout(() => {
       splash.classList.remove('active');
       goTo('page-login');
-    }, 560);
-  }, 2300);
+    }, CONFIG.SPLASH_FADE_MS);
+  }, CONFIG.SPLASH_DURATION_MS);
 });

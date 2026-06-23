@@ -28,7 +28,7 @@ const DB = {
       id INTEGER PRIMARY KEY,
       name TEXT, email TEXT, avatar TEXT,
       biz_name TEXT, biz_type TEXT, biz_city TEXT,
-      lang TEXT DEFAULT 'taglish', tier TEXT DEFAULT 'simula'
+      lang TEXT DEFAULT '${CONFIG.DEFAULT_LANG}', tier TEXT DEFAULT '${CONFIG.TIERS.SIMULA}'
     )`);
     this._db.run(`CREATE TABLE IF NOT EXISTS transactions (
       id INTEGER PRIMARY KEY,
@@ -54,35 +54,35 @@ const DB = {
   /* ── Seed data ── */
   _seed() {
     this._db.run(`INSERT INTO profiles VALUES
-      (1,'Maria Anning','maria@email.com','MA','Anning Sari-Sari Store','sari','Quezon City','taglish','simula'),
-      (2,'Juan Dela Cruz','juan@email.com','JD','JC Online Shop','online','Manila','taglish','sigla'),
-      (3,'Rosa Magsaysay','rosa@email.com','RM','RM Retail Hub','retail','Makati','taglish','unlad')`);
+      (1,'Maria Anning','maria@email.com','MA','Anning Sari-Sari Store','sari','Quezon City','taglish','${CONFIG.TIERS.SIMULA}'),
+      (2,'Juan Dela Cruz','juan@email.com','JD','JC Online Shop','online','Manila','taglish','${CONFIG.TIERS.SIGLA}'),
+      (3,'Rosa Magsaysay','rosa@email.com','RM','RM Retail Hub','retail','Makati','taglish','${CONFIG.TIERS.UNLAD}')`);
 
     const tx = (pid, type, desc, amt, date, cat, time) =>
       `(${pid},'${type}','${desc}',${amt},'${date}','${cat}','${time}')`;
 
     const baseTxs = [
-      tx(1,'inc','Sold softdrinks + chips',340,'2025-06-18','','2:14 PM'),
-      tx(1,'exp','Bought supplies (SM Market)',580,'2025-06-18','Supplies','10:30 AM'),
-      tx(1,'inc','Sold phone load',15,'2025-06-17','','6:45 PM'),
-      tx(1,'exp','Electricity bill',620,'2025-06-17','Utilities','3:00 PM'),
-      tx(1,'inc','Morning sales',460,'2025-06-16','','8:00 AM'),
-      tx(1,'inc','Ulam sales noon',680,'2025-06-15','','12:30 PM'),
-      tx(1,'exp','LPG refill',420,'2025-06-14','Supplies','9:00 AM'),
-      tx(2,'inc','Sold softdrinks + chips',340,'2025-06-18','','2:14 PM'),
-      tx(2,'exp','Bought supplies (SM Market)',580,'2025-06-18','Supplies','10:30 AM'),
-      tx(2,'inc','Sold phone load',15,'2025-06-17','','6:45 PM'),
-      tx(2,'exp','Electricity bill',620,'2025-06-17','Utilities','3:00 PM'),
-      tx(2,'inc','Morning sales',460,'2025-06-16','','8:00 AM'),
-      tx(2,'inc','Ulam sales noon',680,'2025-06-15','','12:30 PM'),
-      tx(2,'exp','LPG refill',420,'2025-06-14','Supplies','9:00 AM'),
-      tx(3,'inc','Sold softdrinks + chips',340,'2025-06-18','','2:14 PM'),
-      tx(3,'exp','Bought supplies (SM Market)',580,'2025-06-18','Supplies','10:30 AM'),
-      tx(3,'inc','Sold phone load',15,'2025-06-17','','6:45 PM'),
-      tx(3,'exp','Electricity bill',620,'2025-06-17','Utilities','3:00 PM'),
-      tx(3,'inc','Morning sales',460,'2025-06-16','','8:00 AM'),
-      tx(3,'inc','Ulam sales noon',680,'2025-06-15','','12:30 PM'),
-      tx(3,'exp','LPG refill',420,'2025-06-14','Supplies','9:00 AM'),
+      tx(1,CONFIG.TX.INCOME,'Sold softdrinks + chips',340,'2025-06-18','','2:14 PM'),
+      tx(1,CONFIG.TX.EXPENSE,'Bought supplies (SM Market)',580,'2025-06-18','Supplies','10:30 AM'),
+      tx(1,CONFIG.TX.INCOME,'Sold phone load',15,'2025-06-17','','6:45 PM'),
+      tx(1,CONFIG.TX.EXPENSE,'Electricity bill',620,'2025-06-17','Utilities','3:00 PM'),
+      tx(1,CONFIG.TX.INCOME,'Morning sales',460,'2025-06-16','','8:00 AM'),
+      tx(1,CONFIG.TX.INCOME,'Ulam sales noon',680,'2025-06-15','','12:30 PM'),
+      tx(1,CONFIG.TX.EXPENSE,'LPG refill',420,'2025-06-14','Supplies','9:00 AM'),
+      tx(2,CONFIG.TX.INCOME,'Sold softdrinks + chips',340,'2025-06-18','','2:14 PM'),
+      tx(2,CONFIG.TX.EXPENSE,'Bought supplies (SM Market)',580,'2025-06-18','Supplies','10:30 AM'),
+      tx(2,CONFIG.TX.INCOME,'Sold phone load',15,'2025-06-17','','6:45 PM'),
+      tx(2,CONFIG.TX.EXPENSE,'Electricity bill',620,'2025-06-17','Utilities','3:00 PM'),
+      tx(2,CONFIG.TX.INCOME,'Morning sales',460,'2025-06-16','','8:00 AM'),
+      tx(2,CONFIG.TX.INCOME,'Ulam sales noon',680,'2025-06-15','','12:30 PM'),
+      tx(2,CONFIG.TX.EXPENSE,'LPG refill',420,'2025-06-14','Supplies','9:00 AM'),
+      tx(3,CONFIG.TX.INCOME,'Sold softdrinks + chips',340,'2025-06-18','','2:14 PM'),
+      tx(3,CONFIG.TX.EXPENSE,'Bought supplies (SM Market)',580,'2025-06-18','Supplies','10:30 AM'),
+      tx(3,CONFIG.TX.INCOME,'Sold phone load',15,'2025-06-17','','6:45 PM'),
+      tx(3,CONFIG.TX.EXPENSE,'Electricity bill',620,'2025-06-17','Utilities','3:00 PM'),
+      tx(3,CONFIG.TX.INCOME,'Morning sales',460,'2025-06-16','','8:00 AM'),
+      tx(3,CONFIG.TX.INCOME,'Ulam sales noon',680,'2025-06-15','','12:30 PM'),
+      tx(3,CONFIG.TX.EXPENSE,'LPG refill',420,'2025-06-14','Supplies','9:00 AM'),
     ];
     this._db.run(`INSERT INTO transactions (profile_id,type,desc,amt,date,cat,time)
       VALUES ${baseTxs.join(',')}`);
@@ -113,11 +113,11 @@ const DB = {
     let bin = '';
     const u8 = new Uint8Array(data);
     for (let i = 0; i < u8.length; i++) bin += String.fromCharCode(u8[i]);
-    localStorage.setItem('ez_db', btoa(bin));
+    localStorage.setItem(CONFIG.STORAGE_KEY, btoa(bin));
   },
 
   _loadBlob() {
-    const raw = localStorage.getItem('ez_db');
+    const raw = localStorage.getItem(CONFIG.STORAGE_KEY);
     if (!raw) return null;
     const bin = atob(raw);
     const u8 = new Uint8Array(bin.length);
@@ -251,10 +251,10 @@ const DB = {
     if (!p) return;
     STATE.profileId = p.id;
     STATE.user = { name: p.name, email: p.email, avatar: p.avatar };
-    STATE.biz  = { name: p.biz_name, type: p.biz_type, city: p.biz_city, lang: p.lang };
+    STATE.business  = { name: p.biz_name, type: p.biz_type, city: p.biz_city, lang: p.lang };
     STATE.tier = p.tier;
     STATE.transactions = this.getTransactions(profileId);
-    STATE.nextTxId = STATE.transactions.length
+    STATE.nextTransactionId = STATE.transactions.length
       ? Math.max(...STATE.transactions.map(t => t.id)) + 1 : 1;
     STATE.inventory = this.getInventory(profileId);
     STATE.customers = this.getCustomers(profileId);

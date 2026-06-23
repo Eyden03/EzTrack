@@ -8,16 +8,20 @@
 function show(id) { document.getElementById(id)?.classList.remove('hide'); }
 function hide(id) { document.getElementById(id)?.classList.add('hide'); }
 
-function showToast(msg) {
-  const t = document.getElementById('toast');
-  if (!t) return;
-  t.textContent = msg;
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2400);
+function showToast(message) {
+  const toast = document.getElementById('toast');
+  if (!toast) return;
+  toast.textContent = message;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), CONFIG.TOAST_DURATION_MS);
+}
+
+function setElementText(id, value) {
+  const element = document.getElementById(id);
+  if (element) element.textContent = value;
 }
 
 function setBizProfilesInfo() {
-  const counts = { simula: '1 of 1', sigla: '1 of 2', unlad: '2 of 5' };
-  const el = document.getElementById('biz-profiles-count');
-  if (el) el.textContent = counts[STATE.tier] || '1';
+  const limits = CONFIG.PROFILE_LIMITS;
+  setElementText('biz-profiles-count', (limits[STATE.tier] || limits.simula).current);
 }

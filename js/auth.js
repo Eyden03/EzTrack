@@ -4,8 +4,18 @@
    ============================================================ */
 
 /* ── Setup wizard local state ── */
-let setupBizType = 'sari';
-let appLang      = 'taglish';
+let setupBizType = CONFIG.DEFAULT_BIZ_TYPE;
+let appLang      = CONFIG.DEFAULT_LANG;
+
+/* ──────────────────────────────
+   Helpers
+────────────────────────────── */
+function togglePwd(inputId, button) {
+  const input = document.getElementById(inputId);
+  const isText = input.type === 'text';
+  input.type = isText ? 'password' : 'text';
+  button.querySelector('svg').style.opacity = isText ? '1' : '.45';
+}
 
 /* ──────────────────────────────
    Profile card picker
@@ -14,20 +24,16 @@ function renderProfileCards(profiles) {
   const grid = document.getElementById('profile-grid');
   if (!grid) return;
 
-  const bizIcons = { sari:'🏪', food:'🍱', online:'📦', services:'🔧', retail:'🛍️', other:'💼' };
-  const tierLabels = { simula:'Simula – Free', sigla:'Sigla – ₱249/mo', unlad:'Unlad – ₱699/mo' };
-  const tierColors = { simula:'#4ADE80', sigla:'#60A5FA', unlad:'#FBBF24' };
-
-  grid.innerHTML = profiles.map(p => `
-    <div class="profile-card" onclick="loginAsProfile(${p.id})">
-      <div class="pc-ava">${p.avatar}</div>
+  grid.innerHTML = profiles.map(profile => `
+    <div class="profile-card" onclick="loginAsProfile(${profile.id})">
+      <div class="pc-ava">${profile.avatar}</div>
       <div class="pc-info">
-        <div class="pc-name">${p.name}</div>
-        <div class="pc-biz">${bizIcons[p.biz_type] || '💼'} ${p.biz_name}${p.biz_city ? ' · ' + p.biz_city : ''}</div>
+        <div class="pc-name">${profile.name}</div>
+        <div class="pc-biz">${CONFIG.BIZ_ICONS[profile.biz_type] || '💼'} ${profile.biz_name}${profile.biz_city ? ' · ' + profile.biz_city : ''}</div>
       </div>
-      <div class="pc-tier" style="--tier-color:${tierColors[p.tier]}">
-        <div class="pc-tier-dot" style="background:${tierColors[p.tier]}"></div>
-        ${tierLabels[p.tier] || p.tier}
+      <div class="pc-tier">
+        <div class="pc-tier-dot" style="background:${CONFIG.TIER_META[profile.tier].color}"></div>
+        ${CONFIG.TIER_CARD_LABELS[profile.tier] || profile.tier}
       </div>
     </div>`).join('');
 }
@@ -51,7 +57,7 @@ function doRegister() {
   let ok = true;
 
   if (!email.includes('@')) { show('reg-email-err'); ok = false; } else { hide('reg-email-err'); }
-  if (pass.length < 6)       { show('reg-pass-err'); ok = false; } else { hide('reg-pass-err'); }
+  if (pass.length < CONFIG.MIN_PASSWORD_LENGTH) { show('reg-pass-err'); ok = false; } else { hide('reg-pass-err'); }
   if (pass !== pass2)        { show('reg-pass2-err');ok = false; } else { hide('reg-pass2-err'); }
   if (!ok) return;
 
@@ -61,18 +67,18 @@ function doRegister() {
 
   const id = DB.createProfile({
     name: name || 'New User', email, avatar: initials,
-    biz_name: 'My Business', biz_type: 'sari', biz_city: '', lang: 'taglish', tier: 'simula',
+    biz_name: 'My Business', biz_type: 'sari', biz_city: '', lang: 'taglish', tier: CONFIG.TIERS.SIMULA,
   });
 
   STATE.user = { name: name || 'New User', email, avatar: initials };
   STATE.profileId = id;
-  STATE.biz  = { name: 'My Business', type: 'sari', city: '', lang: 'taglish' };
-  STATE.tier = 'simula';
+  STATE.business  = { name: 'My Business', type: 'sari', city: '', lang: 'taglish' };
+  STATE.tier = CONFIG.TIERS.SIMULA;
   STATE.transactions = [];
   STATE.inventory = [];
   STATE.customers = [];
   STATE.goals = [];
-  STATE.nextTxId = 1;
+  STATE.nextTransactionId = 1;
 
   goTo('page-plans');
   renderPlans();
@@ -84,12 +90,12 @@ function doRegister() {
 function doLogout() {
   STATE.profileId = null;
   STATE.user = null;
-  STATE.biz  = null;
+  STATE.business  = null;
   STATE.transactions = [];
   STATE.inventory = [];
   STATE.customers = [];
   STATE.goals = [];
-  STATE.nextTxId = 1;
+  STATE.nextTransactionId = 1;
   goTo('page-login');
 }
 
@@ -111,13 +117,13 @@ function setLang(l) {
 function setupNext() {
   const biz  = document.getElementById('setup-biz').value.trim() || 'My Business';
   const city = document.getElementById('setup-city').value.trim() || '';
-  STATE.biz  = { name: biz, type: setupBizType, city, lang: appLang };
+  STATE.business  = { name: biz, type: setupBizType, city, lang: appLang };
   // Persist biz info to DB
   DB.updateProfile(STATE.profileId, {
     biz_name: biz, biz_type: setupBizType, biz_city: city, lang: appLang,
   });
   document.getElementById('tg-code').textContent =
-    'EZT-' + Math.floor(1000 + Math.random() * 9000);
+    'EZT-' + Math.floor(CONFIG.TG_CODE_MIN + Math.random() * CONFIG.TG_CODE_RANGE);
   goTo('page-setup2');
 }
 
@@ -133,7 +139,7 @@ function finishSetup() {
 ────────────────────────────── */
 function launchApp() {
   // Ensure fallback defaults
-  if (!STATE.biz)  STATE.biz  = { name:'Anning Sari-Sari Store', type:'sari', city:'Quezon City', lang:'taglish' };
+  if (!STATE.business)  STATE.business  = { name:'Anning Sari-Sari Store', type:'sari', city:'Quezon City', lang:'taglish' };
   if (!STATE.user) STATE.user = { name:'Maria Anning', email:'maria@email.com', avatar:'MA' };
 
   goTo('page-app');
