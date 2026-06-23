@@ -5,7 +5,7 @@ import NotificationsModal from '@/components/modals/NotificationsModal'
 
 function LogoIcon() {
   return (
-    <img src="/assets/images/logo.jpg" alt="EzTrack" className="w-[40px] h-[40px] rounded-xl object-cover" />
+    <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-[60px] h-[60px] rounded-xl object-cover" />
   )
 }
 
@@ -14,9 +14,9 @@ export default function TopBar() {
   const tierMeta = CONFIG.TIER_META[state.tier]
 
   return (
-    <div className="bg-blue-800 px-5 py-3.5 flex items-center justify-between shrink-0">
+    <div className="bg-blue-800 px-5 py-3.5 flex items-center justify-between shrink-0 shadow-md shadow-black/15">
       <div className="flex items-center gap-2.5">
-        <div className="w-[40px] h-[40px] rounded-xl overflow-hidden shrink-0">
+        <div className="w-[60px] h-[60px] rounded-xl overflow-hidden shrink-0">
           <LogoIcon />
         </div>
         <div>
