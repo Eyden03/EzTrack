@@ -8,6 +8,10 @@ const http = require('http');
 const fs   = require('fs');
 const path = require('path');
 
+/* ── Tool registry ── */
+let TOOL_REGISTRY;
+try { TOOL_REGISTRY = require('./tools/_registry.js'); } catch { TOOL_REGISTRY = null; }
+
 /* ── Read .env ── */
 const env = {};
 try {
@@ -47,10 +51,11 @@ try {
   SYSTEM_PROMPT_TEMPLATE = 'You are EzTrack AI, a financial assistant for Filipino SMB owners.\nAnswer based on this data:\n{{txSummary}}';
 }
 
-function buildSystemPrompt(ctx) {
+function buildSystemPrompt(ctx, tier) {
   const net = (ctx.weeklyIncome || 0) - (ctx.weeklyExpenses || 0);
   const txSummary = (ctx.recentTransactions || [])
     .map(t => `  ${t.date} ${t.type === 'inc' ? '+' : '-'}₱${t.amt} — ${t.desc}`).join('\n');
+  const toolList = TOOL_REGISTRY ? TOOL_REGISTRY.getToolListText(tier || 'simula') : '(no tools available)';
 
   return SYSTEM_PROMPT_TEMPLATE
     .replace('{{bizName}}', ctx.bizName || 'Unnamed Business')
@@ -65,7 +70,76 @@ function buildSystemPrompt(ctx) {
     .replace('{{topCategory}}', ctx.topCategory || 'N/A')
     .replace('{{topCategoryAmount}}', (ctx.topCategoryAmount || 0).toLocaleString())
     .replace('{{cashToday}}', (ctx.cashToday || 0).toLocaleString())
-    .replace('{{txSummary}}', txSummary || '  No recent transactions logged.');
+    .replace('{{txSummary}}', txSummary || '  No recent transactions logged.')
+    .replace('{{toolList}}', toolList);
+}
+
+/* ── Call the upstream LLM (stateless helper) ── */
+async function callLLM(messages, tools) {
+  const reqBody = {
+    model: LLM_MODEL,
+    messages,
+    max_tokens: LLM_MAX_TOKENS,
+    ...(LLM_REASONING_EFFORT ? { reasoning_effort: LLM_REASONING_EFFORT } : {}),
+    ...(tools && tools.length ? { tools, tool_choice: 'auto' } : {}),
+    ...LLM_EXTRA_BODY,
+  };
+  const apiRes = await fetch(LLM_API_URL, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${LLM_API_KEY}`,
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(reqBody),
+  });
+  let data;
+  try { data = await apiRes.json(); } catch { data = null; }
+  if (!apiRes.ok) {
+    console.error('Upstream API error:', apiRes.status, data ? JSON.stringify(data).slice(0, 300) : 'non-json');
+    return null;
+  }
+  return data;
+}
+
+/* ── The multi-round tool loop ── */
+async function chatLoop(messages, ctx, tier, maxRounds) {
+  const systemPrompt = buildSystemPrompt(ctx, tier);
+  const toolDefs = TOOL_REGISTRY ? TOOL_REGISTRY.getToolDefs(tier) : [];
+
+  let msgs = [
+    { role: 'system', content: systemPrompt },
+    ...messages,
+  ];
+
+  for (let round = 0; round < maxRounds; round++) {
+    const result = await callLLM(msgs, toolDefs);
+    if (!result) return { reply: '', error: 'LLM request failed' };
+
+    const choice = result.choices?.[0];
+    if (!choice) return { reply: '', error: 'No response from LLM' };
+
+    const msg = choice.message;
+
+    if (choice.finish_reason === 'stop' || !msg.tool_calls) {
+      return { reply: msg.content || '' };
+    }
+
+    /* Handle tool calls */
+    msgs.push({ role: 'assistant', content: msg.content || null, tool_calls: msg.tool_calls });
+
+    for (const tc of msg.tool_calls) {
+      let funcResult;
+      try {
+        const args = JSON.parse(tc.function.arguments);
+        funcResult = TOOL_REGISTRY ? TOOL_REGISTRY.execute(tc.function.name, args, ctx) : { error: 'Registry unavailable' };
+      } catch (e) {
+        funcResult = { error: e.message };
+      }
+      msgs.push({ role: 'tool', tool_call_id: tc.id, content: JSON.stringify(funcResult) });
+    }
+  }
+
+  return { reply: 'I could not complete that request in the available steps. Please try again.' };
 }
 
 /* ── HTTP server ── */
@@ -83,36 +157,22 @@ const server = http.createServer((req, res) => {
     req.on('data', c => body += c);
     req.on('end', async () => {
       try {
-        const { messages, context } = JSON.parse(body);
-        const systemPrompt = buildSystemPrompt(context || {});
+        const { messages, context, tier: reqTier } = JSON.parse(body);
+        const ctx = context || {};
+        const tier = ctx.tier || reqTier || 'simula';
+        ctx.mutations = [];  /* collects write operations for the frontend to apply */
 
-        const reqBody = {
-          model: LLM_MODEL,
-          messages: [
-            { role: 'system', content: systemPrompt },
-            ...(messages || []),
-          ],
-          max_tokens: LLM_MAX_TOKENS,
-          ...(LLM_REASONING_EFFORT ? { reasoning_effort: LLM_REASONING_EFFORT } : {}),
-          ...LLM_EXTRA_BODY,
-        };
-        const apiBody = JSON.stringify(reqBody);
-
-        const apiRes = await fetch(LLM_API_URL, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${LLM_API_KEY}`,
-            'Content-Type': 'application/json',
-          },
-          body: apiBody,
-        });
-
-        let data;
-        try { data = await apiRes.json(); } catch { data = { error: 'non-json response', status: apiRes.status }; }
-        if (!apiRes.ok) console.error('Upstream API error:', apiRes.status, JSON.stringify(data).slice(0, 300));
-        res.writeHead(apiRes.ok ? 200 : apiRes.status, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify(data));
-
+        const result = await chatLoop(messages || [], ctx, tier, 5);
+        if (result.error) {
+          res.writeHead(500, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ error: result.error }));
+        } else {
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({
+            choices: [{ message: { content: result.reply } }],
+            mutations: ctx.mutations.length ? ctx.mutations : undefined,
+          }));
+        }
       } catch (err) {
         console.error('Server error:', err.message);
         res.writeHead(500, { 'Content-Type': 'application/json' });

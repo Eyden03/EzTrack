@@ -1,0 +1,172 @@
+[
+  {
+    "name": "list_transactions",
+    "description": "View recent income and expense transactions for the business.",
+    "handler": "core",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "limit": { "type": "integer", "description": "Number of transactions to show (default 10)" }
+      }
+    }
+  },
+  {
+    "name": "list_inventory",
+    "description": "View all inventory items and their current stock levels.",
+    "handler": "core",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "get_insight_card",
+    "description": "Generate a weekly Taglish insight card identifying the biggest expense and trend compared to last week.",
+    "handler": "core",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "check_overspending",
+    "description": "Check if total expenses exceeded total income this week. Returns a plain-language alert if overspending is detected.",
+    "handler": "core",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "add_transaction",
+    "description": "Add a new income (inc) or expense (exp) transaction with description and amount.",
+    "handler": "transactions",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["inc", "exp"], "description": "inc = money in, exp = money out" },
+        "desc": { "type": "string", "description": "Short description of the transaction" },
+        "amt": { "type": "number", "description": "Amount in Philippine Peso (₱)" },
+        "cat": { "type": "string", "description": "Category (Supplies, Labor, Utilities, Rent, Transportation, Marketing, Miscellaneous)" }
+      },
+      "required": ["type", "desc", "amt"]
+    }
+  },
+  {
+    "name": "delete_transaction",
+    "description": "Delete a transaction by its ID number.",
+    "handler": "transactions",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "id": { "type": "integer", "description": "The ID of the transaction to delete" }
+      },
+      "required": ["id"]
+    }
+  },
+  {
+    "name": "add_inventory_item",
+    "description": "Add a new inventory item with name, quantity, unit, and optional minimum stock threshold.",
+    "handler": "inventory",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Item name" },
+        "qty": { "type": "integer", "description": "Current stock quantity" },
+        "unit": { "type": "string", "description": "Unit of measurement (pcs, kg, box, pack, bottle, sachet, liter, pair)" },
+        "min_threshold": { "type": "integer", "description": "Minimum stock level before alert (default 0)" }
+      },
+      "required": ["name", "qty", "unit"]
+    }
+  },
+  {
+    "name": "set_stock_threshold",
+    "description": "Set or update the minimum stock threshold for an inventory item to trigger low-stock alerts.",
+    "handler": "inventory",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "item_id": { "type": "integer", "description": "The ID of the inventory item" },
+        "min_threshold": { "type": "integer", "description": "New minimum stock level" }
+      },
+      "required": ["item_id", "min_threshold"]
+    }
+  },
+  {
+    "name": "add_customer",
+    "description": "Save a new customer record with name and contact information.",
+    "handler": "customers",
+    "tiers": ["sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Customer full name or business name" },
+        "contact": { "type": "string", "description": "Phone number or email address" }
+      },
+      "required": ["name", "contact"]
+    }
+  },
+  {
+    "name": "set_financial_goal",
+    "description": "Set a financial goal with a target amount and deadline for the AI to monitor.",
+    "handler": "goals",
+    "tiers": ["unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "Goal name, e.g. '₱50,000 net profit by December'" },
+        "target_amt": { "type": "number", "description": "Target amount in Philippine Peso (₱)" },
+        "deadline": { "type": "string", "description": "Deadline date (YYYY-MM-DD)" }
+      },
+      "required": ["name", "target_amt", "deadline"]
+    }
+  },
+  {
+    "name": "check_goal_progress",
+    "description": "Check how close you are to reaching your financial goal based on current earnings.",
+    "handler": "goals",
+    "tiers": ["unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "forecast_cashflow",
+    "description": "Generate a 30-day cash flow forecast based on recent transaction patterns.",
+    "handler": "forecasting",
+    "tiers": ["unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "check_tax_deadlines",
+    "description": "Check upcoming BIR quarterly tax deadlines and estimated percentage tax due.",
+    "handler": "tax",
+    "tiers": ["unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  },
+  {
+    "name": "check_restock_needs",
+    "description": "Check which inventory items are below their minimum stock threshold and need restocking.",
+    "handler": "restock",
+    "tiers": ["unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {}
+    }
+  }
+]

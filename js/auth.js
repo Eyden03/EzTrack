@@ -70,6 +70,8 @@ function doRegister() {
   STATE.tier = 'simula';
   STATE.transactions = [];
   STATE.inventory = [];
+  STATE.customers = [];
+  STATE.goals = [];
   STATE.nextTxId = 1;
 
   goTo('page-plans');
@@ -85,6 +87,8 @@ function doLogout() {
   STATE.biz  = null;
   STATE.transactions = [];
   STATE.inventory = [];
+  STATE.customers = [];
+  STATE.goals = [];
   STATE.nextTxId = 1;
   goTo('page-login');
 }

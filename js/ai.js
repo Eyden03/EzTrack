@@ -35,6 +35,7 @@ function buildAIContext() {
   }
 
   return {
+    profileId: STATE.profileId,
     bizName: STATE.biz?.name || '',
     tier: STATE.tier,
     cashToday,
@@ -43,10 +44,13 @@ function buildAIContext() {
     topCategory,
     topCategoryAmount,
     recentTransactions: txs.slice(0, 10),
+    inventory: STATE.inventory,
+    customers: STATE.customers,
+    goals: STATE.goals,
   };
 }
 
-/* ── Call the LLM proxy — returns reply text or null ── */
+/* ── Call the LLM proxy — returns { reply, mutations } or null ── */
 async function callLLM(messages, context) {
   try {
     const res = await fetch('/api/chat', {
@@ -59,10 +63,58 @@ async function callLLM(messages, context) {
       if (data.title || data.error) console.warn('LLM API error:', data.title || data.error);
       return null;
     }
-    return data.choices?.[0]?.message?.content || null;
+    const reply = data.choices?.[0]?.message?.content || null;
+    return { reply, mutations: data.mutations || [] };
   } catch (e) {
     console.warn('LLM API error:', e.message);
     return null;
+  }
+}
+
+/* ── Apply mutations returned by the server to the local DB ── */
+function applyMutations(mutations) {
+  for (const m of mutations) {
+    switch (m.action) {
+      case 'add_transaction': {
+        const tx = m.data;
+        const id = DB.addTransaction({
+          profile_id: STATE.profileId,
+          type: tx.type, desc: tx.desc, amt: tx.amt,
+          date: tx.date, cat: tx.cat || '', time: tx.time || '',
+        });
+        STATE.transactions.unshift({ id, profile_id: STATE.profileId, ...tx });
+        break;
+      }
+      case 'delete_transaction': {
+        DB.deleteTransaction(m.data.id);
+        STATE.transactions = STATE.transactions.filter(t => t.id !== m.data.id);
+        break;
+      }
+      case 'add_inventory_item': {
+        const id = DB.addInventoryItem({ profile_id: STATE.profileId, ...m.data });
+        STATE.inventory.push({ id, profile_id: STATE.profileId, ...m.data });
+        break;
+      }
+      case 'set_stock_threshold': {
+        const item = STATE.inventory.find(i => i.id === m.data.item_id);
+        if (item) item.min_threshold = m.data.min_threshold;
+        break;
+      }
+      case 'add_customer': {
+        const id = DB.addCustomer({ profile_id: STATE.profileId, ...m.data });
+        STATE.customers.push({ id, profile_id: STATE.profileId, ...m.data });
+        break;
+      }
+      case 'set_financial_goal': {
+        const id = DB.addGoal({ profile_id: STATE.profileId, ...m.data });
+        STATE.goals.push({ id, profile_id: STATE.profileId, ...m.data });
+        break;
+      }
+    }
+  }
+  if (mutations.length && STATE.currentTab === 'home') {
+    renderTxList();
+    renderStats();
   }
 }
 
@@ -143,8 +195,9 @@ async function sendAI(msg) {
   const chatHistory = AI_CHAT.messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : m.role, content: m.text }));
   chatHistory.push({ role: 'user', content: msg });
 
-  const llmReply = await callLLM(chatHistory, context);
-  const reply = llmReply || keywordReply(msg);
+  const result = await callLLM(chatHistory, context);
+  const reply = result ? result.reply : keywordReply(msg);
+  if (result && result.mutations.length) applyMutations(result.mutations);
 
   const typing = document.getElementById('typing-indicator');
   if (typing) typing.outerHTML = `<div class="chat-msg ai">${reply}</div><div class="chat-ts ai-ts">${now}</div>`;

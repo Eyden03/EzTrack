@@ -40,6 +40,15 @@ const DB = {
       profile_id INTEGER, name TEXT, qty INTEGER,
       unit TEXT, min_threshold INTEGER DEFAULT 0
     )`);
+    this._db.run(`CREATE TABLE IF NOT EXISTS customers (
+      id INTEGER PRIMARY KEY,
+      profile_id INTEGER, name TEXT, contact TEXT
+    )`);
+    this._db.run(`CREATE TABLE IF NOT EXISTS goals (
+      id INTEGER PRIMARY KEY,
+      profile_id INTEGER, name TEXT, target_amt REAL,
+      deadline TEXT
+    )`);
   },
 
   /* ── Seed data ── */
@@ -206,6 +215,36 @@ const DB = {
     return id;
   },
 
+  /* ── Customer queries ── */
+  getCustomers(profileId) {
+    const rows = this._db.exec('SELECT id,profile_id,name,contact FROM customers WHERE profile_id=? ORDER BY name', [profileId]);
+    if (!rows.length) return [];
+    return rows[0].values.map(r => ({ id: r[0], profile_id: r[1], name: r[2], contact: r[3] }));
+  },
+
+  addCustomer(data) {
+    this._db.run('INSERT INTO customers (profile_id,name,contact) VALUES (?,?,?)',
+      [data.profile_id, data.name, data.contact]);
+    const id = this._db.exec('SELECT last_insert_rowid()')[0].values[0][0];
+    this._saveBlob();
+    return id;
+  },
+
+  /* ── Goal queries ── */
+  getGoals(profileId) {
+    const rows = this._db.exec('SELECT id,profile_id,name,target_amt,deadline FROM goals WHERE profile_id=? ORDER BY id', [profileId]);
+    if (!rows.length) return [];
+    return rows[0].values.map(r => ({ id: r[0], profile_id: r[1], name: r[2], target_amt: r[3], deadline: r[4] }));
+  },
+
+  addGoal(data) {
+    this._db.run('INSERT INTO goals (profile_id,name,target_amt,deadline) VALUES (?,?,?,?)',
+      [data.profile_id, data.name, data.target_amt, data.deadline]);
+    const id = this._db.exec('SELECT last_insert_rowid()')[0].values[0][0];
+    this._saveBlob();
+    return id;
+  },
+
   /* ── Full STATE loader ── */
   loadState(profileId) {
     const p = this.getProfile(profileId);
@@ -218,5 +257,7 @@ const DB = {
     STATE.nextTxId = STATE.transactions.length
       ? Math.max(...STATE.transactions.map(t => t.id)) + 1 : 1;
     STATE.inventory = this.getInventory(profileId);
+    STATE.customers = this.getCustomers(profileId);
+    STATE.goals = this.getGoals(profileId);
   },
 };

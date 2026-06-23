@@ -15,6 +15,8 @@ const STATE = {
   transactions: [],
   nextTxId: 1,
   inventory: [],
+  customers: [],
+  goals: [],
   simulaQueriesRemaining: 10,
 };
 

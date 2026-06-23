@@ -78,13 +78,13 @@ The AI assistant uses function calling to read/write financial data. Tools are g
 | `add_inventory_item` | Add stock item | ❌ | ✅ | ✅ |
 | `set_stock_threshold` | Set min stock alert level | ❌ | ✅ | ✅ |
 | `add_customer` | Save customer record | ❌ | ✅ | ✅ |
-| `generate_invoice` | Create invoice | ❌ | ✅ | ✅ |
-| `generate_report` | Download financial .docx | ❌ | ✅ | ✅ |
 | `set_financial_goal` | Set profit target with deadline | ❌ | ❌ | ✅ |
 | `check_goal_progress` | Monitor goal status | ❌ | ❌ | ✅ |
 | `forecast_cashflow` | 30-day projection | ❌ | ❌ | ✅ |
 | `check_tax_deadlines` | Upcoming BIR dates | ❌ | ❌ | ✅ |
 | `check_restock_needs` | What's below threshold? | ❌ | ❌ | ✅ |
+
+*`generate_invoice` and `generate_report` (`.docx`) are planned but not yet implemented.*
 
 Each inference call type maps to a cost allocation — see `costing.md` for the breakdown.
 
