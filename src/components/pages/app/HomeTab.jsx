@@ -139,7 +139,7 @@ export default function HomeTab() {
       {tier === CONFIG.TIERS.SIMULA && (
         <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-4 text-center">
           <p className="text-xs text-gray-400 mb-2">Upgrade to Sigla for categories, monthly reports, invoices, and unlimited AI chat</p>
-          <button className="px-5 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">Upgrade Now</button>
+          <button onClick={() => navigate('/plans')} className="px-5 py-2 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">Upgrade Now</button>
         </div>
       )}
 

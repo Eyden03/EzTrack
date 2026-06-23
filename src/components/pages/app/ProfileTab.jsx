@@ -82,7 +82,7 @@ export default function ProfileTab() {
               <div className="text-[11px] text-gray-400">Current plan · Active</div>
             </div>
             {tier !== CONFIG.TIERS.UNLAD && (
-              <button className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">Upgrade</button>
+              <button onClick={() => navigate('/plans')} className="px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-bold hover:bg-blue-700 transition-colors">Upgrade</button>
             )}
           </div>
         </div>

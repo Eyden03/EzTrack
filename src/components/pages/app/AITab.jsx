@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import { api } from '@/lib/api'
@@ -7,6 +8,7 @@ import { getSuggestionChips } from '@/data/suggestionChips'
 import { toast } from 'sonner'
 
 export default function AITab() {
+  const navigate = useNavigate()
   const { state, dispatch } = useApp()
   const [messages, setMessages] = useState([
     {
@@ -212,7 +214,7 @@ export default function AITab() {
         <div className="px-4 py-3 border-t border-gray-100">
           <p className="text-xs text-gray-400 text-center">
             You've used all your AI queries this month.{' '}
-            <span className="text-blue-600 font-semibold">Upgrade to Sigla</span> for unlimited access.
+            <button onClick={() => navigate('/plans')} className="text-blue-600 font-semibold">Upgrade to Sigla</button> for unlimited access.
           </p>
         </div>
       ) : (
