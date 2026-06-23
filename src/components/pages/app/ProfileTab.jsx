@@ -1,5 +1,6 @@
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
+import LanguageModal from '@/components/modals/LanguageModal'
 
 export default function ProfileTab() {
   const { state, dispatch } = useApp()
@@ -49,14 +50,16 @@ export default function ProfileTab() {
             <span className="text-xs text-gray-400">{CONFIG.PROFILE_LIMITS[tier].current}</span>
             <svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" className="w-4 h-4"><polyline points="9 18 15 12 9 6" /></svg>
           </div>
-          <div className="flex items-center gap-3 p-4">
-            <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" className="w-[17px] h-[17px]"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>
-            </div>
-            <span className="flex-1 text-sm font-semibold text-gray-800">Language</span>
-            <span className="text-xs text-gray-400">Taglish</span>
-            <svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" className="w-4 h-4"><polyline points="9 18 15 12 9 6" /></svg>
-          </div>
+          <LanguageModal>
+            <button className="w-full flex items-center gap-3 p-4 text-left">
+              <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" className="w-[17px] h-[17px]"><circle cx="12" cy="12" r="10" /><line x1="2" y1="12" x2="22" y2="12" /><path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" /></svg>
+              </div>
+              <span className="flex-1 text-sm font-semibold text-gray-800">Language</span>
+              <span className="text-xs text-gray-400">Taglish</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" className="w-4 h-4"><polyline points="9 18 15 12 9 6" /></svg>
+            </button>
+          </LanguageModal>
           <div className="flex items-center gap-3 p-4">
             <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center">
               <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" className="w-[17px] h-[17px]"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>

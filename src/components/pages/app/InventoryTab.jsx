@@ -1,7 +1,23 @@
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
+import AddItemModal from '@/components/modals/AddItemModal'
 
 export default function InventoryTab() {
+  return (
+    <div>
+      <InventoryTabContent />
+      <AddItemModal>
+        <button className="fixed bottom-[84px] right-4 z-30 w-12 h-12 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700 active:scale-95 transition-all">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-5 h-5">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="16" /><line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+        </button>
+      </AddItemModal>
+    </div>
+  )
+}
+
+function InventoryTabContent() {
   const { state } = useApp()
   const inv = state.inventory
   const tier = state.tier
