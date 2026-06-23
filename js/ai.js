@@ -60,13 +60,11 @@ async function callLLM(messages, context) {
     });
     const data = await res.json();
     if (!res.ok || data.error) {
-      if (data.title || data.error) console.warn('LLM API error:', data.title || data.error);
       return null;
     }
     const reply = data.choices?.[0]?.message?.content || null;
     return { reply, mutations: data.mutations || [] };
   } catch (e) {
-    console.warn('LLM API error:', e.message);
     return null;
   }
 }

@@ -64,7 +64,7 @@
 <div class="page auth-page" id="page-register">
   <div class="auth-header">
     <div class="auth-header-logo">
-      <button onclick="goTo('page-login')" style="background:rgba(255,255,255,.15);border:none;border-radius:8px;padding:6px 10px;color:white;font-size:12px;font-weight:700;cursor:pointer;margin-right:4px;">← Back</button>
+      <button class="auth-back-btn" onclick="goTo('page-login')">← Back</button>
     </div>
     <div class="auth-title">Simulan natin! 🚀</div>
     <div class="auth-sub">Create your free EzTrack account</div>
@@ -184,35 +184,35 @@
     </div>
   </div>
   <div class="setup-body">
-    <div class="card" style="margin:0 0 16px;border:2px solid var(--blue-200);background:var(--blue-50);">
-      <div style="display:flex;gap:12px;align-items:flex-start;">
-        <div style="width:44px;height:44px;background:var(--blue-600);border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+    <div class="card setup-tg-card">
+      <div class="setup-tg-row">
+        <div class="setup-tg-avatar">
           <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8l-1.68 7.92c-.12.56-.46.7-.92.44l-2.52-1.86-1.22 1.16c-.14.14-.28.2-.54.2l.18-2.6 4.74-4.28c.2-.18-.04-.28-.32-.1l-5.86 3.7-2.52-.78c-.54-.18-.56-.54.12-.8l9.84-3.8c.46-.16.86.1.7.8z"/></svg>
         </div>
         <div>
-          <div style="font-size:15px;font-weight:700;color:var(--blue-800);margin-bottom:4px;">Connect to @EzTrackBot</div>
-          <div style="font-size:13px;color:var(--gray-600);line-height:1.5;">Your AI heartbeat, alerts, and conversational logging — all delivered through Telegram.</div>
+          <div class="setup-tg-title">Connect to @EzTrackBot</div>
+          <div class="setup-tg-text">Your AI heartbeat, alerts, and conversational logging — all delivered through Telegram.</div>
         </div>
       </div>
     </div>
-    <div style="margin-bottom:20px;">
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
-        <div style="width:26px;height:26px;border-radius:50%;background:var(--blue-600);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
-        <div style="font-size:14px;color:var(--gray-700);line-height:1.5;padding-top:3px;">Open Telegram and search for <strong>@EzTrackPHBot</strong></div>
+    <div class="setup-steps-wrap">
+      <div class="setup-step-row">
+        <div class="setup-step-num">1</div>
+        <div class="setup-step-text">Open Telegram and search for <strong>@EzTrackPHBot</strong></div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
-        <div style="width:26px;height:26px;border-radius:50%;background:var(--blue-600);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
-        <div style="font-size:14px;color:var(--gray-700);line-height:1.5;padding-top:3px;">Tap <strong>Start</strong> and send your unique code below</div>
+      <div class="setup-step-row">
+        <div class="setup-step-num">2</div>
+        <div class="setup-step-text">Tap <strong>Start</strong> and send your unique code below</div>
       </div>
-      <div style="display:flex;align-items:flex-start;gap:12px;">
-        <div style="width:26px;height:26px;border-radius:50%;background:var(--blue-600);color:white;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
-        <div style="font-size:14px;color:var(--gray-700);line-height:1.5;padding-top:3px;">Your Heartbeat briefings will start arriving the next morning</div>
+      <div class="setup-step-row">
+        <div class="setup-step-num">3</div>
+        <div class="setup-step-text">Your Heartbeat briefings will start arriving the next morning</div>
       </div>
     </div>
-    <div style="background:var(--gray-100);border-radius:var(--r-md);padding:16px;text-align:center;margin-bottom:20px;">
-      <div style="font-size:11px;font-weight:700;color:var(--gray-400);letter-spacing:.5px;margin-bottom:6px;">YOUR LINK CODE</div>
-      <div style="font-size:28px;font-weight:800;color:var(--blue-700);letter-spacing:4px;" id="tg-code">EZT-4829</div>
-      <div style="font-size:12px;color:var(--gray-400);margin-top:4px;">Tap to copy</div>
+    <div class="setup-code-box">
+      <div class="setup-code-label">YOUR LINK CODE</div>
+      <div class="setup-code-value" id="tg-code">EZT-4829</div>
+      <div class="setup-code-hint">Tap to copy</div>
     </div>
     <button class="btn-primary" onclick="finishSetup()">I've Connected — Take Me In!</button>
     <button class="btn-ghost" onclick="finishSetup()">Skip for Now</button>
@@ -299,8 +299,8 @@
     </div>
 
     <!-- AI TAB -->
-    <div id="tab-ai" class="tab-content hide" style="display:flex;flex-direction:column;height:100%;">
-      <div id="ai-content" style="flex:1;overflow-y:auto;"></div>
+    <div id="tab-ai" class="tab-content hide">
+      <div id="ai-content"></div>
     </div>
 
     <!-- PROFILE TAB -->
