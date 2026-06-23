@@ -1,9 +1,35 @@
 /* ============================================================
    EzTrack – Inventory Tab
-   Tier-gated stock-alert extras + "Add Inventory Item" modal
+   Dynamic item list, tier-gated extras, "Add Inventory Item" modal
    ============================================================ */
 
+function renderInventoryList() {
+  const el = document.getElementById('inv-list');
+  if (!el) return;
+
+  const incSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg>`;
+
+  el.innerHTML = STATE.inventory.map(item => {
+    const qty = item.qty || 0;
+    const min = item.min_threshold || 0;
+    let cls = 'is-ok', lbl = 'OK';
+    if (qty <= 0) { cls = 'is-out'; lbl = 'Out'; }
+    else if (min > 0 && qty < min) { cls = 'is-low'; lbl = 'Low'; }
+    return `
+      <div class="inv-item">
+        <div class="inv-ico">${incSVG}</div>
+        <div class="inv-info">
+          <div class="inv-name">${item.name}</div>
+          <div class="inv-qty">${qty} ${item.unit}${min ? ' · Min: ' + min : ''}</div>
+        </div>
+        <span class="inv-status ${cls}">${lbl}</span>
+      </div>`;
+  }).join('');
+}
+
 function renderInventoryExtras() {
+  renderInventoryList();
+
   const el = document.getElementById('inv-tier-extras');
   if (!el) return;
 
@@ -59,24 +85,27 @@ function renderInventoryExtras() {
 
 function submitAddItem() {
   const name = document.getElementById('inv-iname').value.trim();
-  const qty  = document.getElementById('inv-iqty').value;
+  const qty  = parseInt(document.getElementById('inv-iqty').value) || 0;
   const unit = document.getElementById('inv-iunit').value;
   if (!name) { showToast('Please enter item name'); return; }
 
-  const list        = document.getElementById('inv-list');
-  const status      = parseInt(qty) <= 0 ? 'is-out' : 'is-ok';
-  const statusLabel = parseInt(qty) <= 0 ? 'Out' : 'OK';
+  const newId = DB.addInventoryItem({
+    profile_id: STATE.profileId,
+    name, qty, unit,
+    min_threshold: parseInt(document.getElementById('inv-ithresh').value) || 0,
+  });
 
-  const div = document.createElement('div');
-  div.className = 'inv-item';
-  div.innerHTML = `
-    <div class="inv-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-4 0v2"/></svg></div>
-    <div class="inv-info"><div class="inv-name">${name}</div><div class="inv-qty">${qty || 0} ${unit}</div></div>
-    <span class="inv-status ${status}">${statusLabel}</span>`;
-  list.appendChild(div);
+  STATE.inventory.push({
+    id: newId, profile_id: STATE.profileId,
+    name, qty, unit,
+    min_threshold: parseInt(document.getElementById('inv-ithresh').value) || 0,
+  });
+
+  renderInventoryList();
 
   closeModal('modal-additem');
   document.getElementById('inv-iname').value = '';
   document.getElementById('inv-iqty').value = '';
+  document.getElementById('inv-ithresh').value = '';
   showToast('Item added to inventory');
 }

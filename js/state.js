@@ -5,24 +5,16 @@
    ============================================================ */
 
 const STATE = {
-  user: null,        // { name, email, avatar }
-  biz:  null,        // { name, type, city, lang }
-  tier: 'simula',   // 'simula' | 'sigla' | 'unlad'
+  profileId: null,
+  user: null,
+  biz:  null,
+  tier: 'simula',
   billing: 'monthly',
   currentTab: 'home',
   txType: 'inc',
-
-  /* Seed transactions (replace with API calls in production) */
-  transactions: [
-    { id:1, type:'inc', desc:'Sold softdrinks + chips',      amt:340,  date:'2025-06-18', cat:'',          time:'2:14 PM'  },
-    { id:2, type:'exp', desc:'Bought supplies (SM Market)',  amt:580,  date:'2025-06-18', cat:'Supplies',  time:'10:30 AM' },
-    { id:3, type:'inc', desc:'Sold phone load ₱100',         amt:15,   date:'2025-06-17', cat:'',          time:'6:45 PM'  },
-    { id:4, type:'exp', desc:'Electricity bill',             amt:620,  date:'2025-06-17', cat:'Utilities', time:'3:00 PM'  },
-    { id:5, type:'inc', desc:'Morning sales',                amt:460,  date:'2025-06-16', cat:'',          time:'8:00 AM'  },
-    { id:6, type:'inc', desc:'Ulam sales noon',              amt:680,  date:'2025-06-15', cat:'',          time:'12:30 PM' },
-    { id:7, type:'exp', desc:'LPG refill',                   amt:420,  date:'2025-06-14', cat:'Supplies',  time:'9:00 AM'  },
-  ],
-  nextTxId: 8,
+  transactions: [],
+  nextTxId: 1,
+  inventory: [],
 };
 
 /* Weekly bar-chart data (replace with computed values in production) */

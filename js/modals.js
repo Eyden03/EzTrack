@@ -47,10 +47,15 @@ function submitLog() {
   const dateStr = now.toISOString().split('T')[0];
   const cat     = document.getElementById('log-cat')?.value || '';
 
-  STATE.transactions.unshift({
-    id: STATE.nextTxId++,
+  const newId = DB.addTransaction({
+    profile_id: STATE.profileId,
     type: STATE.txType,
     desc, amt, date: dateStr, cat, time: timeStr,
+  });
+
+  STATE.transactions.unshift({
+    id: newId, profile_id: STATE.profileId,
+    type: STATE.txType, desc, amt, date: dateStr, cat, time: timeStr,
   });
 
   closeModal('modal-log');

@@ -5,6 +5,7 @@
 
 function renderReportsTab() {
   renderBarChart();
+  renderPrintBtn();
 
   /* Compute totals from live transactions */
   const totalInc = STATE.transactions.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0);
@@ -38,6 +39,114 @@ function renderBarChart() {
         <div class="bc-label">${d.day}</div>
       </div>`;
   }).join('');
+}
+
+/* ──────────────────────────────
+   Print / PDF Report
+────────────────────────────── */
+function renderPrintBtn() {
+  const repEl = document.getElementById('tab-reports');
+  if (!repEl) return;
+  const existing = document.getElementById('print-btn-wrap');
+  if (existing) existing.remove();
+  const wrap = document.createElement('div');
+  wrap.id = 'print-btn-wrap';
+  wrap.style.cssText = 'margin:0 16px 16px;';
+  wrap.innerHTML = `
+    <button class="log-fab" onclick="generateReport()" style="box-shadow:none;background:var(--white);color:var(--blue-600);border:1.5px solid var(--blue-200);">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Generate Report
+    </button>`;
+  repEl.appendChild(wrap);
+}
+
+function generateReport() {
+  const biz  = STATE.biz || { name: 'My Business' };
+  const user = STATE.user || { name: 'User' };
+  const now  = new Date();
+  const dateStr = now.toLocaleDateString('en-PH', { year: 'numeric', month: 'long', day: 'numeric' });
+
+  const totalInc = STATE.transactions.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0);
+  const totalExp = STATE.transactions.filter(t => t.type === 'exp').reduce((s, t) => s + t.amt, 0);
+  const net      = totalInc - totalExp;
+  const maxV     = Math.max(...WEEKDATA.map(d => Math.max(d.inc, d.exp)));
+
+  const dayRows = WEEKDATA.map(d => `
+    <tr>
+      <td>${d.day}</td>
+      <td style="text-align:right;">₱${d.inc.toLocaleString()}</td>
+      <td style="text-align:right;">₱${d.exp.toLocaleString()}</td>
+      <td style="text-align:right;font-weight:${d.inc - d.exp >= 0 ? '600' : '600'};color:${d.inc - d.exp >= 0 ? 'var(--blue-600)' : 'var(--red-600)'}">${d.inc - d.exp >= 0 ? '+' : ''}₱${(d.inc - d.exp).toLocaleString()}</td>
+    </tr>`).join('');
+
+  const weekInc = WEEKDATA.reduce((s, d) => s + d.inc, 0);
+  const weekExp = WEEKDATA.reduce((s, d) => s + d.exp, 0);
+
+  const txRows = STATE.transactions.slice(0, 10).map(tx => `
+    <div class="pc-tx-item">
+      <span class="pc-tx-name">${tx.desc}</span>
+      <span class="pc-tx-amt ${tx.type}">${tx.type === 'inc' ? '+' : '-'}₱${tx.amt.toLocaleString()}</span>
+    </div>`).join('');
+
+  const content = document.getElementById('print-content');
+  content.innerHTML = `
+    <div class="print-header">
+      <h1>${biz.name}</h1>
+      <div class="pc-sub">Financial Report · ${dateStr} · Prepared for ${user.name}</div>
+    </div>
+
+    <div class="pc-summary">
+      <div class="pc-stat">
+        <div class="pc-stat-lbl">Total Income</div>
+        <div class="pc-stat-val blue">₱${totalInc.toLocaleString()}</div>
+      </div>
+      <div class="pc-stat">
+        <div class="pc-stat-lbl">Total Expenses</div>
+        <div class="pc-stat-val red">₱${totalExp.toLocaleString()}</div>
+      </div>
+      <div class="pc-stat">
+        <div class="pc-stat-lbl">Net Earnings</div>
+        <div class="pc-stat-val net">${net >= 0 ? '+' : ''}₱${net.toLocaleString()}</div>
+      </div>
+    </div>
+
+    <h2>Daily Breakdown</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Day</th>
+          <th style="text-align:right;">Income</th>
+          <th style="text-align:right;">Expenses</th>
+          <th style="text-align:right;">Net</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${dayRows}
+        <tr class="tr-grand">
+          <td><strong>Weekly Total</strong></td>
+          <td style="text-align:right;">₱${weekInc.toLocaleString()}</td>
+          <td style="text-align:right;">₱${weekExp.toLocaleString()}</td>
+          <td style="text-align:right;">${weekInc - weekExp >= 0 ? '+' : ''}₱${(weekInc - weekExp).toLocaleString()}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Recent Transactions</h2>
+    ${txRows}
+
+    <div class="print-footer">
+      EzTrack · Your Financial Companion since Day 1 · Generated ${dateStr}
+    </div>`;
+
+  document.getElementById('print-report').classList.add('open');
+}
+
+function doPrintReport() {
+  window.print();
+}
+
+function closePrintReport() {
+  document.getElementById('print-report').classList.remove('open');
 }
 
 function renderReportsTierExtras() {

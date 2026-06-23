@@ -1,6 +1,6 @@
 /* ============================================================
    EzTrack – Authentication & Onboarding
-   Login · Register · Business setup · Telegram setup · Logout
+   Profile picker · Register · Business setup · Logout
    ============================================================ */
 
 /* ── Setup wizard local state ── */
@@ -8,63 +8,36 @@ let setupBizType = 'sari';
 let appLang      = 'taglish';
 
 /* ──────────────────────────────
-   Helpers
+   Profile card picker
 ────────────────────────────── */
-function togglePwd(inputId, btn) {
-  const inp   = document.getElementById(inputId);
-  const isText = inp.type === 'text';
-  inp.type = isText ? 'password' : 'text';
-  btn.querySelector('svg').style.opacity = isText ? '1' : '.45';
+function renderProfileCards(profiles) {
+  const grid = document.getElementById('profile-grid');
+  if (!grid) return;
+
+  const bizIcons = { sari:'🏪', food:'🍱', online:'📦', services:'🔧', retail:'🛍️', other:'💼' };
+  const tierLabels = { simula:'Simula – Free', sigla:'Sigla – ₱249/mo', unlad:'Unlad – ₱699/mo' };
+  const tierColors = { simula:'#4ADE80', sigla:'#60A5FA', unlad:'#FBBF24' };
+
+  grid.innerHTML = profiles.map(p => `
+    <div class="profile-card" onclick="loginAsProfile(${p.id})">
+      <div class="pc-ava">${p.avatar}</div>
+      <div class="pc-info">
+        <div class="pc-name">${p.name}</div>
+        <div class="pc-biz">${bizIcons[p.biz_type] || '💼'} ${p.biz_name}${p.biz_city ? ' · ' + p.biz_city : ''}</div>
+      </div>
+      <div class="pc-tier" style="--tier-color:${tierColors[p.tier]}">
+        <div class="pc-tier-dot" style="background:${tierColors[p.tier]}"></div>
+        ${tierLabels[p.tier] || p.tier}
+      </div>
+    </div>`).join('');
 }
 
 /* ──────────────────────────────
    Login
 ────────────────────────────── */
-function doLogin() {
-  const email = document.getElementById('login-email').value.trim();
-  const pass  = document.getElementById('login-pass').value;
-  let ok = true;
-
-  if (!email.includes('@')) {
-    show('login-email-err');
-    document.getElementById('login-email').classList.add('err');
-    ok = false;
-  } else {
-    hide('login-email-err');
-    document.getElementById('login-email').classList.remove('err');
-  }
-
-  if (pass.length < 6) {
-    show('login-pass-err');
-    document.getElementById('login-pass').classList.add('err');
-    ok = false;
-  } else {
-    hide('login-pass-err');
-    document.getElementById('login-pass').classList.remove('err');
-  }
-
-  if (!ok) return;
-
-  // There's no real backend here, so "logging in" means: restore whatever
-  // profile this browser previously registered/set up (ez_user / ez_biz).
-  // If none exists yet, build a sensible placeholder from the email instead
-  // of a hardcoded demo name — that was the source of the name mismatch.
-  const savedUser = localStorage.getItem('ez_user');
-  const savedBiz  = localStorage.getItem('ez_biz');
-
-  STATE.user = savedUser ? JSON.parse(savedUser) : buildPlaceholderUser(email);
-  STATE.biz  = savedBiz  ? JSON.parse(savedBiz)  : { name: 'My Business', type: 'sari', city: '', lang: 'taglish' };
-  STATE.tier = localStorage.getItem('ez_tier') || 'simula';
+function loginAsProfile(id) {
+  DB.loadState(id);
   launchApp();
-}
-
-/* Derives a friendly display name + initials from an email address,
-   used only when no profile has been registered on this device yet. */
-function buildPlaceholderUser(email) {
-  const handle = email.split('@')[0].replace(/[._]+/g, ' ').trim();
-  const name = handle.replace(/\b\w/g, c => c.toUpperCase()) || 'New User';
-  const initials = name.split(' ').filter(Boolean).map(w => w.charAt(0).toUpperCase()).slice(0, 2).join('') || 'U';
-  return { name, email, avatar: initials };
 }
 
 /* ──────────────────────────────
@@ -86,8 +59,19 @@ function doRegister() {
     (name ? name.charAt(0).toUpperCase() : 'N') +
     (name.split(' ')[1] ? name.split(' ')[1].charAt(0).toUpperCase() : 'U');
 
+  const id = DB.createProfile({
+    name: name || 'New User', email, avatar: initials,
+    biz_name: 'My Business', biz_type: 'sari', biz_city: '', lang: 'taglish', tier: 'simula',
+  });
+
   STATE.user = { name: name || 'New User', email, avatar: initials };
-  localStorage.setItem('ez_user', JSON.stringify(STATE.user));
+  STATE.profileId = id;
+  STATE.biz  = { name: 'My Business', type: 'sari', city: '', lang: 'taglish' };
+  STATE.tier = 'simula';
+  STATE.transactions = [];
+  STATE.inventory = [];
+  STATE.nextTxId = 1;
+
   goTo('page-plans');
   renderPlans();
 }
@@ -96,7 +80,12 @@ function doRegister() {
    Logout
 ────────────────────────────── */
 function doLogout() {
-  localStorage.removeItem('ez_tier');
+  STATE.profileId = null;
+  STATE.user = null;
+  STATE.biz  = null;
+  STATE.transactions = [];
+  STATE.inventory = [];
+  STATE.nextTxId = 1;
   goTo('page-login');
 }
 
@@ -119,7 +108,10 @@ function setupNext() {
   const biz  = document.getElementById('setup-biz').value.trim() || 'My Business';
   const city = document.getElementById('setup-city').value.trim() || '';
   STATE.biz  = { name: biz, type: setupBizType, city, lang: appLang };
-  // Generate random Telegram link code
+  // Persist biz info to DB
+  DB.updateProfile(STATE.profileId, {
+    biz_name: biz, biz_type: setupBizType, biz_city: city, lang: appLang,
+  });
   document.getElementById('tg-code').textContent =
     'EZT-' + Math.floor(1000 + Math.random() * 9000);
   goTo('page-setup2');
@@ -136,7 +128,7 @@ function finishSetup() {
    Launch the main app
 ────────────────────────────── */
 function launchApp() {
-  // Fallback defaults (e.g. when coming from login with existing account)
+  // Ensure fallback defaults
   if (!STATE.biz)  STATE.biz  = { name:'Anning Sari-Sari Store', type:'sari', city:'Quezon City', lang:'taglish' };
   if (!STATE.user) STATE.user = { name:'Maria Anning', email:'maria@email.com', avatar:'MA' };
 

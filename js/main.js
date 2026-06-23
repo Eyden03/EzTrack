@@ -1,12 +1,15 @@
 /* ============================================================
    EzTrack – App Bootstrap
-   Pre-renders the plan picker, runs the splash sequence,
-   then hands off to the login screen. Loaded last so every
-   render/navigation function it calls already exists.
+   Initialises the SQLite database, pre-renders the plan picker,
+   then runs the splash sequence and hands off to login.
    ============================================================ */
 
-window.addEventListener('load', () => {
+window.addEventListener('load', async () => {
+  await DB.init();
   renderPlans();
+
+  const profiles = DB.getProfiles();
+  renderProfileCards(profiles);
 
   setTimeout(() => {
     const splash = document.getElementById('page-splash');
