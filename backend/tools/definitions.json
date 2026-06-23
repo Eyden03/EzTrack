@@ -226,7 +226,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "description": { "type": "string" },
+              "description": { "type": "string", "description": "Full product name including brand, size, and variant. E.g. 'Jasmine Rice 1kg', 'Cooking Oil 1L', not 'rice' or 'oil'" },
               "qty": { "type": "integer" },
               "unit_price": { "type": "number" }
             },
@@ -257,7 +257,7 @@
           "items": {
             "type": "object",
             "properties": {
-              "description": { "type": "string" },
+              "description": { "type": "string", "description": "Full product name including brand, size, and variant. E.g. 'Jasmine Rice 1kg', 'Cooking Oil 1L', not 'rice' or 'oil'" },
               "qty": { "type": "integer" },
               "unit_price": { "type": "number" }
             },

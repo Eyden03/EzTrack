@@ -19,7 +19,6 @@ export default function ReportsTab() {
   const totalInc = state.transactions.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0)
   const totalExp = state.transactions.filter(t => t.type === 'exp').reduce((s, t) => s + t.amt, 0)
   const net = totalInc - totalExp
-  const tier = state.tier
 
   return (
     <div className="px-4 pt-4 pb-6">

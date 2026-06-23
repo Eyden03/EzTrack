@@ -26,6 +26,24 @@ def _find_and_replace(doc, placeholder, value):
                 run.text = run.text.replace(placeholder, value)
                 return
 
+def _find_and_replace_all(doc, placeholder, value):
+    value = str(value)
+    for table in doc.tables:
+        for row in table.rows:
+            for cell in row.cells:
+                for paragraph in cell.paragraphs:
+                    full_text = ''.join(r.text for r in paragraph.runs)
+                    if placeholder in full_text:
+                        new_text = full_text.replace(placeholder, value)
+                        for ri, run in enumerate(paragraph.runs):
+                            run.text = new_text if ri == 0 else ''
+    for paragraph in doc.paragraphs:
+        full_text = ''.join(r.text for r in paragraph.runs)
+        if placeholder in full_text:
+            new_text = full_text.replace(placeholder, value)
+            for ri, run in enumerate(paragraph.runs):
+                run.text = new_text if ri == 0 else ''
+
 def _find_table_by_header(doc, header_text):
     for table in doc.tables:
         for row in table.rows:
@@ -34,7 +52,7 @@ def _find_table_by_header(doc, header_text):
                     return table
     return None
 
-def _fill_items_table(table, items, cols):
+def _fill_items_table(table, items, col_map):
     if not table or not items:
         return
     header_rows = 1
@@ -45,15 +63,16 @@ def _fill_items_table(table, items, cols):
         else:
             row = table.add_row()
         amt = item["qty"] * item["unit_price"]
-        for ci, col_key in enumerate(cols):
+        for ci, field in col_map.items():
             if ci < len(row.cells):
                 val = {
                     "description": item.get("description", ""),
                     "qty": str(item["qty"]),
                     "unit_price": f"₱{item['unit_price']:,.2f}",
                     "amount": f"₱{amt:,.2f}",
-                }.get(col_key, "")
-                row.cells[ci].text = val
+                }.get(field, "")
+                if val:
+                    row.cells[ci].text = val
 
 def _amount_to_words(amount):
     if amount == 0:
@@ -88,40 +107,43 @@ def build(items, customer, payment, ctx, tier):
     contact = biz.get("contact", "09XX-XXX-XXXX")
 
     _find_and_replace(doc, "[Your Business Name]", biz_name)
-    _find_and_replace(doc, "[Business Address", biz_city)
+    _find_and_replace(doc, "[Business Address / Barangay, City]", biz_city)
+    _find_and_replace(doc, "Barangay, City]", biz_city)
     _find_and_replace(doc, "09XX-XXX-XXXX", contact)
     _find_and_replace(doc, "[Month DD, YYYY]", datetime.now().strftime("%B %d, %Y"))
-    _find_and_replace(doc, "0001", str(ctx.get("nextDocNumber", 1)))
+    _find_and_replace(doc, "[0001]", str(ctx.get("nextDocNumber", 1)))
     _find_and_replace(doc, "[Customer Name]", customer.get("name", ""))
     if customer.get("contact"):
-        _find_and_replace(doc, "09XX-XXX-XXXX", customer["contact"])
-
-    _find_and_replace(doc, "000-000-000-000", biz.get("tin", "000-000-000-000"))
+        _find_and_replace(doc, "[09XX-XXX-XXXX]", customer["contact"])
 
     items_table = _find_table_by_header(doc, "AMOUNT")
+    if not items_table:
+        items_table = _find_table_by_header(doc, "WHAT WAS PAID")
+
     if items_table:
-        cols = ["description", "qty", "unit_price", "amount"] if len(items_table.rows[0].cells) > 2 else ["description", "amount"]
-        _fill_items_table(items_table, items, cols)
+        ncols = len(items_table.rows[0].cells)
+        col_map = {2: "qty", 3: "unit_price", 4: "amount"} if ncols > 4 else {1: "amount"}
+        col_map[0] = "description"
+        _fill_items_table(items_table, items, col_map)
 
     total = sum(i["qty"] * i["unit_price"] for i in items)
-    _find_and_replace(doc, "₱[0.00]", f"₱{total:,.2f}")
-    _find_and_replace(doc, "0.00", f"{total:,.2f}")
+    _find_and_replace_all(doc, "₱[0.00]", f"₱{total:,.2f}")
 
     words = _amount_to_words(total)
-    _find_and_replace(doc, "Amount in words", words)
-    _find_and_replace(doc, "One Thousand Pesos Only", words)
-    _find_and_replace(doc, "[Amount in words", words)
+    for para in doc.paragraphs:
+        full = ''.join(r.text for r in para.runs)
+        if "[Amount in words" in full or "One Thousand" in full or "Amount in Words" in full:
+            for ri, run in enumerate(para.runs):
+                run.text = words if ri == 0 else ''
+            break
 
     if payment.get("method"):
         _find_and_replace(doc, "Cash", payment["method"])
-    if payment.get("status"):
-        if "Paid in Full" in doc.tables[0].rows[0].cells[0].text if doc.tables else "":
-            pass
-        _find_and_replace(doc, "Paid in Full", "✓ " + payment["status"])
-        _find_and_replace(doc, "Partial", "")
-        _find_and_replace(doc, "☐", "✓")
+    if payment.get("status") and "paid" in payment["status"].lower():
+        _find_and_replace_all(doc, "☐", "✓")
 
     if tier == "unlad":
-        _find_and_replace(doc, "000-000-000-000", biz.get("tin", "000-000-000-000"))
+        biz_tin = biz.get("tin", "000-000-000-000")
+        _find_and_replace(doc, "[000-000-000-000]", biz_tin)
 
     return doc

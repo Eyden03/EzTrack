@@ -162,6 +162,18 @@ export default function AITab() {
                   </table>
                 </div>
               ))}
+              {msg.role === 'ai' && msg.tools?.some(t => ['generate_receipt', 'generate_invoice', 'generate_report'].includes(t)) && (
+                <button
+                  onClick={() => navigate('/app/reports')}
+                  className="mt-2 text-[11px] text-blue-600 font-semibold hover:text-blue-700 flex items-center gap-1"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">
+                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                  </svg>
+                  View in My Documents
+                </button>
+              )}
               <div className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.ts}</div>
             </div>
           </div>
