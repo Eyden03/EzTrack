@@ -83,19 +83,19 @@ export default function HomeTab() {
       </div>
 
       {tier !== 'unlad' && (
-        <div className="rounded-xl bg-blue-50 border border-blue-200 px-4 py-3.5 mb-4">
-          <div className="flex items-center gap-[7px] mb-1.5">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px] shrink-0">
-              <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
-            </svg>
-            <span className="text-[12px] font-bold text-blue-700 uppercase tracking-[.5px]">
+        <div className="flex items-start gap-3 rounded-xl bg-blue-50 border border-blue-100 p-4 mb-4">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5">
+            <circle cx="12" cy="12" r="10" /><line x1="12" y1="16" x2="12" y2="12" /><line x1="12" y1="8" x2="12.01" y2="8" />
+          </svg>
+          <div>
+            <div className="text-xs font-bold text-blue-800 mb-1">
               {tier === 'simula' ? 'Weekly Insight' : '2 Tips This Week'}
-            </span>
-          </div>
-          <div className="text-[13px] text-blue-800 leading-relaxed">
-            {tier === 'simula'
-              ? 'Ang pinakamalaking gastos mo ngayong linggo ay Supplies — ₱1,200. Mas mababa ito vs last week (₱1,650). Maganda ang trend!'
-              : '1. Supplies (22% of expenses) — consider bulk ordering to reduce per-unit cost. 2. Friday is your best sales day — ensure you are fully stocked by Thursday night.'}
+            </div>
+            <div className="text-xs text-blue-700 leading-relaxed">
+              {tier === 'simula'
+                ? 'Supplies is your biggest expense at 41%. Bulk ordering could save 8-12%.'
+                : '1️⃣ Buy supplies Thursday before weekend spike. 2️⃣ Stock up on best-sellers Friday.'}
+            </div>
           </div>
         </div>
       )}
