@@ -72,7 +72,10 @@ export default function AITab() {
       })
       if (!res.ok) return null
       const data = await res.json()
-      return { reply: data.choices?.[0]?.message?.content || '' }
+      return {
+        reply: data.choices?.[0]?.message?.content || '',
+        toolCallsUsed: data.tool_calls_used || [],
+      }
     } catch {
       return null
     }
@@ -100,7 +103,7 @@ export default function AITab() {
 
     await refreshState()
 
-    const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts }
+    const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts, tools: result?.toolCallsUsed || [] }
     setMessages(prev => [...prev, aiMsg])
     setIsTyping(false)
   }
@@ -125,6 +128,9 @@ export default function AITab() {
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}>
+              {msg.role === 'ai' && msg.tools?.length > 0 && (
+                <div className="text-[10px] text-gray-300 mb-1">Used: {msg.tools.join(', ')}</div>
+              )}
               <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: msg.text }} />
               <div className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.ts}</div>
             </div>
