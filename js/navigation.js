@@ -1,6 +1,9 @@
 /* ============================================================
    EzTrack – Navigation
-   Page routing (goTo) and bottom-tab switching (switchTab)
+   Page routing (goTo) and bottom-tab switching (switchTab).
+   The switchTab dispatcher is the single source of truth for
+   tab-to-render-function mapping. This is intentional coupling
+   — React migration would replace this with a router.
    ============================================================ */
 
 /**

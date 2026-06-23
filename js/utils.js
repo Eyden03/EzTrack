@@ -20,8 +20,3 @@ function setElementText(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
 }
-
-function setBizProfilesInfo() {
-  const limits = CONFIG.PROFILE_LIMITS;
-  setElementText('biz-profiles-count', (limits[STATE.tier] || limits.simula).current);
-}
