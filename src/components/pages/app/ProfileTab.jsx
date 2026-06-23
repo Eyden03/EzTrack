@@ -1,9 +1,11 @@
+import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import LanguageModal from '@/components/modals/LanguageModal'
 
 export default function ProfileTab() {
   const { state, dispatch } = useApp()
+  const navigate = useNavigate()
   const user = state.user || { name: 'User', email: '', avatar: 'U' }
   const biz = state.business || { name: 'My Business', type: 'other', city: '' }
   const tier = state.tier
@@ -12,6 +14,7 @@ export default function ProfileTab() {
 
   function handleLogout() {
     dispatch({ type: 'LOGOUT' })
+    navigate('/login', { replace: true })
   }
 
   return (
