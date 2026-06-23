@@ -1,11 +1,11 @@
 # EzTrack – AGENTS.md
 
 ## Project type & status
-Vanilla HTML/CSS/JS SPA — a **frontend prototype/demo** for an academic project (CCS0103 Technopreneurship, FEU Institute of Technology). No build tools, no package.json, no bundler, no tests, no CI. The backend (Telegram bot, cloud sync) does not exist in this repo. The AI chat uses a lightweight Node.js proxy (`api.js`) that forwards to an OpenAI-compatible API — configure your key in `.env` (copy from `.env.example`).
+Vanilla HTML/CSS/JS SPA — a **frontend prototype/demo** for an academic project (CCS0103 Technopreneurship, FEU Institute of Technology). No build tools, no package.json, no bundler, no tests, no CI. The backend (Telegram bot, cloud sync) does not exist in this repo. The AI chat uses a lightweight Node.js proxy (`backend/api.js`) that forwards to an OpenAI-compatible API — configure your key in `.env` (copy from `.env.example`).
 
 Serve locally:
 ```
-node api.js
+node backend/api.js
 ```
 Then open http://localhost:3001. For LLM chat to work, set `OPENAI_API_KEY` in `.env`.
 

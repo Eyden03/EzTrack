@@ -9,13 +9,13 @@ Last updated: Phase 6 refactor (Jun 2026). Branch: `functional_prototype`.
 EzTrack is a vanilla HTML/CSS/JS SPA — no frameworks, no bundler, no package manager. It is a frontend prototype for an academic project (CCS0103 Technopreneurship, FEU Institute of Technology).
 
 ```
-Browser (SPA)                    Node.js (api.js)              LLM (DeepSeek)
+Browser (SPA)                    Node.js (backend/api.js)              LLM (DeepSeek)
   sql.js WASM DB        POST /api/chat →    → system prompt + tools →
   localStorage          ← response ←        ← text / tool_calls ←
 ```
 
 - **Frontend**: all features client-side via sql.js SQLite + localStorage persistence.
-- **Server**: `api.js` — zero-dependency Node.js server (built-in `http`, `fs`, `path`). Serves static files + proxies `/api/chat` to an OpenAI-compatible LLM endpoint.
+- **Server**: `backend/api.js` — zero-dependency Node.js server (built-in `http`, `fs`, `path`). Serves static files + proxies `/api/chat` to an OpenAI-compatible LLM endpoint.
 - **No real backend**: no auth server, no cloud sync, no Telegram bot in this repo.
 
 ---
@@ -62,9 +62,9 @@ config.js → state.js → db.js → utils.js → navigation.js
 | `profile.js` | Account summary, subscription card, support section gating, business profile count | No DB calls; reads from STATE; writes DOM |
 | `modals.js` | Modal open/close, transaction log form, language modal | DB writes via `createTransaction()`; DOM writes via `clearLogForm()` |
 | `main.js` | Bootstrap sequence only: `DB.init()` → render cards → splash → login | No business logic inline |
-| `api.js` | Static file server + `/api/chat` proxy + AI tool calling loop | No DOM, no STATE |
-| `tools/_registry.js` | Loads tool definitions, filters by tier, dispatches execution | No DOM, no DB |
-| `tools/*.js` | Individual tool handlers (one domain per file) | Each handler writes to `ctx.mutations`; never touches DOM or DB directly |
+| `backend/api.js` | Static file server + `/api/chat` proxy + AI tool calling loop | No DOM, no STATE |
+| `backend/tools/_registry.js` | Loads tool definitions, filters by tier, dispatches execution | No DOM, no DB |
+| `backend/tools/*.js` | Individual tool handlers (one domain per file) | Each handler writes to `ctx.mutations`; never touches DOM or DB directly |
 
 ---
 
@@ -141,11 +141,11 @@ Tab switching: `switchTab(tab)` in `navigation.js` — the single dispatcher map
 
 ```
 js/ai.js                  ← frontend: sends messages, receives reply + mutations
-api.js                    ← server: multi-round tool loop
-tools/_registry.js        ← loads definitions, filters by tier, dispatches
-tools/definitions.json    ← 14 tool schemas with tier access
-tools/{domain}.js         ← handler modules (core, transactions, inventory, customers, goals, forecasting, tax, restock)
-assets/system-prompt.txt  ← LLM system prompt template with {{placeholders}}
+backend/api.js            ← server: multi-round tool loop
+backend/tools/_registry.js ← loads definitions, filters by tier, dispatches
+backend/tools/definitions.json ← 14 tool schemas with tier access
+backend/tools/{domain}.js ← handler modules (core, transactions, inventory, customers, goals, forecasting, tax, restock)
+backend/system-prompt.txt ← LLM system prompt template with {{placeholders}}
 ```
 
 ### Tool loop (server-side)
@@ -246,7 +246,7 @@ pages.css       →   page-specific: splash, auth, plans, setup, home, reports, 
 ## 10. Development Commands
 
 ```bash
-node api.js            # start server on :3001 (serves static + /api/chat)
+node backend/api.js   # start server on :3001 (serves static + /api/chat)
 cp .env.example .env   # configure LLM API key
 ```
 

@@ -12,10 +12,13 @@ const path = require('path');
 let TOOL_REGISTRY;
 try { TOOL_REGISTRY = require('./tools/_registry.js'); } catch { TOOL_REGISTRY = null; }
 
+/* ── Root directory (one level up from backend/) ── */
+const ROOT_DIR = path.resolve(__dirname, '..');
+
 /* ── Read .env ── */
 const env = {};
 try {
-  const lines = fs.readFileSync('.env', 'utf-8').split('\n');
+  const lines = fs.readFileSync(path.join(ROOT_DIR, '.env'), 'utf-8').split('\n');
   for (const line of lines) {
     const trimmed = line.trim();
     if (!trimmed || trimmed.startsWith('#')) continue;
@@ -43,10 +46,10 @@ const MIME = {
   '.ico':'image/x-icon','.woff2':'font/woff2','.wasm':'application/wasm',
 };
 
-/* ── System prompt template (loaded from assets/system-prompt.txt) ── */
+/* ── System prompt template (loaded from backend/system-prompt.txt) ── */
 let SYSTEM_PROMPT_TEMPLATE = '';
 try {
-  SYSTEM_PROMPT_TEMPLATE = fs.readFileSync(path.join(__dirname, 'assets', 'system-prompt.txt'), 'utf-8');
+  SYSTEM_PROMPT_TEMPLATE = fs.readFileSync(path.join(__dirname, 'system-prompt.txt'), 'utf-8');
 } catch {
   SYSTEM_PROMPT_TEMPLATE = 'You are EzTrack AI, a financial assistant for Filipino SMB owners.\nAnswer based on this data:\n{{txSummary}}';
 }
@@ -184,10 +187,10 @@ const server = http.createServer((req, res) => {
 
   /* ── Static file serving ── */
   let filePath = req.url === '/' ? '/index.html' : req.url;
-  filePath = path.join(__dirname, filePath);
+  filePath = path.join(ROOT_DIR, filePath);
 
   /* Prevent directory traversal */
-  if (!filePath.startsWith(__dirname)) {
+  if (!filePath.startsWith(ROOT_DIR)) {
     res.writeHead(403); res.end();
     return;
   }

@@ -10,7 +10,7 @@ Track income & expenses, manage inventory, get AI-powered insights, and generate
 
 ```bash
 cp .env.example .env    # configure your LLM API key
-node api.js             # serves on http://localhost:3001
+node backend/api.js     # serves on http://localhost:3001
 ```
 
 Open http://localhost:3001, pick a demo account (Simula/Sigla/Unlad), and explore.
@@ -25,7 +25,7 @@ See `AGENTS.md` for detailed architecture and conventions.
 |-------|-----------|
 | Frontend | Vanilla HTML/CSS/JS — no frameworks, no bundler |
 | Persistence | SQLite via `sql.js` WASM, serialized to `localStorage` |
-| AI Chat | OpenAI-compatible API via `api.js` proxy (DeepSeek, OpenAI, Ollama, etc.) |
+| AI Chat | OpenAI-compatible API via `backend/api.js` proxy (DeepSeek, OpenAI, Ollama, etc.) |
 | Secrets | `.env` file read server-side, never exposed to browser |
 
 ---
@@ -33,16 +33,22 @@ See `AGENTS.md` for detailed architecture and conventions.
 ## Project Structure
 
 ```
-assets/
-  images/logo.jpg
+backend/
+  api.js                  # Node.js server — static files + /api/chat proxy
   system-prompt.txt       # LLM system prompt template ({{placeholder}} tokens)
+  tools/                  # Tool registry, definitions, and handler modules
+    _registry.js
+    definitions.json
+    core.js  transactions.js  inventory.js  customers.js
+    goals.js  forecasting.js  tax.js  restock.js
 css/
   variables.css           # design tokens (blue palette, fonts, radii)
   base.css                # reset, viewport shell, page system, bottom nav
   components.css          # buttons, forms, modals, pills, cards
   pages.css               # page-specific styles + print overlay
 js/
-  state.js                # STATE object, PLANS, AI_CHAT, AI_RESPONSES
+  config.js               # single source of all constants (TIERS, TX, limits, labels)
+  state.js                # STATE object, WEEKDATA, AI_CHAT, AI_RESPONSES
   db.js                   # SQLite wrapper (sql.js) — schema, seed, CRUD, persistence
   utils.js                # show(), hide(), showToast()
   navigation.js           # goTo(), switchTab()
@@ -55,7 +61,8 @@ js/
   profile.js              # profile tab, subscription card, support gating
   modals.js               # log transaction, language, add inventory item modals
   main.js                 # bootstrap — DB.init(), render cards, splash, login
-api.js                    # Node.js server — static files + /api/chat proxy
+assets/
+  images/logo.jpg
 .evn.example              # LLM API configuration template
 ```
 
@@ -92,7 +99,7 @@ Each inference call type maps to a cost allocation — see `costing.md` for the 
 
 1. User types a message in the AI tab
 2. `js/ai.js` → `POST /api/chat` with conversation history + financial context
-3. `api.js` builds a system prompt from `assets/system-prompt.txt`, injects context (business name, weekly totals, top category, recent transactions)
+3. `backend/api.js` builds a system prompt from `backend/system-prompt.txt`, injects context (business name, weekly totals, top category, recent transactions)
 4. Sends to the configured LLM with tool definitions for the user's tier
 5. If the LLM requests a tool call, the server executes it against the SQLite DB, feeds the result back to the LLM, and returns the final text response
 6. If the server or API is unreachable, falls back to keyword-matched demo responses
