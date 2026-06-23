@@ -64,9 +64,12 @@ export default function AITab() {
   const queriesRemaining = state.simulaQueriesRemaining
   const tier = state.tier
   const isSimulaExhausted = tier === CONFIG.TIERS.SIMULA && queriesRemaining <= 0
+  const didSeedWelcome = useRef(false)
 
   useEffect(() => {
+    if (didSeedWelcome.current) return
     if (state.chatMessages.length === 0) {
+      didSeedWelcome.current = true
       const weekTx = state.transactions.filter(t => {
         const d = new Date(t.date)
         const weekAgo = new Date()
@@ -89,7 +92,7 @@ export default function AITab() {
       }
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: { role: 'ai', text, ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) } })
     }
-  }, [state.chatMessages.length])
+  }, [])
 
   function keywordReply(msg) {
     const lower = msg.toLowerCase()
