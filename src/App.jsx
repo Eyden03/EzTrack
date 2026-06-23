@@ -1,5 +1,8 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { useDB } from '@/hooks/useDB'
+import Splash from '@/components/pages/Splash'
+import LoginPage from '@/components/pages/LoginPage'
+import RegisterPage from '@/components/pages/RegisterPage'
 
 export default function App() {
   useDB()
@@ -7,9 +10,9 @@ export default function App() {
   return (
     <Routes>
       <Route path="/" element={<Navigate to="/splash" replace />} />
-      <Route path="/splash" element={<div className="flex items-center justify-center h-full bg-gray-900 text-white text-2xl font-bold">EzTrack</div>} />
-      <Route path="/login" element={<div className="p-6">Login Page</div>} />
-      <Route path="/register" element={<div className="p-6">Register Page</div>} />
+      <Route path="/splash" element={<Splash />} />
+      <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/plans" element={<div className="p-6">Plans Page</div>} />
       <Route path="/setup/step-1" element={<div className="p-6">Setup Step 1</div>} />
       <Route path="/setup/step-2" element={<div className="p-6">Setup Step 2</div>} />
