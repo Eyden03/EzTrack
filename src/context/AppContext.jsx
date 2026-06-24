@@ -61,6 +61,12 @@ function reducer(state, action) {
         inventory: state.inventory.map(i => (i.id === item_id ? { ...i, min_threshold } : i)),
       }
     }
+    case 'UPDATE_INVENTORY_ITEM': {
+      const { item_id, ...fields } = action.payload
+      return { ...state, inventory: state.inventory.map(i => (i.id === item_id ? { ...i, ...fields } : i)) }
+    }
+    case 'DELETE_INVENTORY_ITEM':
+      return { ...state, inventory: state.inventory.filter(i => i.id !== action.payload) }
     case 'ADD_CUSTOMER': {
       const c = action.payload
       return { ...state, customers: [...state.customers, c] }

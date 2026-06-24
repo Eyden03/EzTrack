@@ -18,3 +18,24 @@ def set_stock_threshold(args, db_conn, ctx):
         return {"error": "Missing required fields: item_id, min_threshold"}
     db.set_stock_threshold(db_conn, args["item_id"], int(args["min_threshold"]))
     return {"success": True, "message": f"Threshold set to {args['min_threshold']} for item #{args['item_id']}"}
+
+def update_inventory_item(args, db_conn, ctx):
+    if not args.get("item_id"):
+        return {"error": "Missing item_id"}
+    fields = {}
+    if args.get("name") is not None:
+        fields["name"] = args["name"]
+    if args.get("qty") is not None:
+        fields["qty"] = int(args["qty"])
+    if args.get("unit") is not None:
+        fields["unit"] = args["unit"]
+    if not fields:
+        return {"error": "No fields to update"}
+    db.update_inventory_item(db_conn, args["item_id"], fields)
+    return {"success": True, "message": f"Item #{args['item_id']} updated."}
+
+def remove_inventory_item(args, db_conn, ctx):
+    if not args.get("item_id"):
+        return {"error": "Missing item_id"}
+    db.delete_inventory_item(db_conn, args["item_id"])
+    return {"success": True, "message": f"Item #{args['item_id']} removed."}

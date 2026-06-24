@@ -115,7 +115,7 @@
     "name": "add_inventory_item",
     "description": "Add a new inventory item with name, quantity, unit, and optional minimum stock threshold.",
     "handler": "inventory",
-    "tiers": ["sigla", "unlad"],
+    "tiers": ["simula", "sigla", "unlad"],
     "parameters": {
       "type": "object",
       "properties": {
@@ -139,6 +139,35 @@
         "min_threshold": { "type": "integer", "description": "New minimum stock level" }
       },
       "required": ["item_id", "min_threshold"]
+    }
+  },
+  {
+    "name": "update_inventory_item",
+    "description": "Update an inventory item's name, quantity, or unit.",
+    "handler": "inventory",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "item_id": { "type": "integer", "description": "The ID of the inventory item to update" },
+        "name": { "type": "string", "description": "New item name (optional)" },
+        "qty": { "type": "integer", "description": "New quantity (optional)" },
+        "unit": { "type": "string", "description": "New unit (optional, e.g. pcs, kg, box)" }
+      },
+      "required": ["item_id"]
+    }
+  },
+  {
+    "name": "remove_inventory_item",
+    "description": "Remove an inventory item by its ID.",
+    "handler": "inventory",
+    "tiers": ["simula", "sigla", "unlad"],
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "item_id": { "type": "integer", "description": "The ID of the inventory item to remove" }
+      },
+      "required": ["item_id"]
     }
   },
   {

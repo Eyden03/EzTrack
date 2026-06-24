@@ -153,6 +153,19 @@ def set_stock_threshold(conn, item_id, min_threshold):
     conn.execute("UPDATE inventory SET min_threshold=? WHERE id=?", (min_threshold, item_id))
     conn.commit()
 
+def update_inventory_item(conn, item_id, data):
+    keys = [k for k in data if data[k] is not None]
+    if not keys:
+        return
+    set_clause = ", ".join(f"{k}=?" for k in keys)
+    values = [data[k] for k in keys] + [item_id]
+    conn.execute(f"UPDATE inventory SET {set_clause} WHERE id=?", values)
+    conn.commit()
+
+def delete_inventory_item(conn, item_id):
+    conn.execute("DELETE FROM inventory WHERE id=?", (item_id,))
+    conn.commit()
+
 # ── Customer CRUD ──
 
 def get_customers(conn, profile_id):
