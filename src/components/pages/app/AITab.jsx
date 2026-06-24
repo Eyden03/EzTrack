@@ -117,6 +117,7 @@ export default function AITab() {
       }
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: { role: 'ai', text, ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) } })
     }
+    prevMsgLenRef.current = messages.length
   }, [])
 
   useEffect(() => {
