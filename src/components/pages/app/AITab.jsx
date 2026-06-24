@@ -280,7 +280,7 @@ export default function AITab() {
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} ${msg.role === 'user' ? 'animate-pop-in' : ''}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}>
               {showTools && (
-                <div className="text-[10px] text-gray-400 mb-1">Used: {msg.tools.join(', ')}</div>
+                <div className="text-[10px] text-gray-400 mb-1">Used: {[...new Set(msg.tools)].join(', ')}</div>
               )}
               <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: displayText }} />
               {msg.tables?.map((t, ti) => (
