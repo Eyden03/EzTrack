@@ -4,29 +4,31 @@ import { CONFIG } from '@/config'
 import NotificationsModal from '@/components/modals/NotificationsModal'
 import { Bell, User } from 'lucide-react'
 
+const BLUE = '#1a3fdb'
+
 export default function TopBar() {
   const { state } = useApp()
 
   const badgeColor = state.tier === CONFIG.TIERS.UNLAD ? '#4ade80' : '#facc15'
-  const badgeLabel = state.tier === CONFIG.TIERS.UNLAD ? 'Live' : `${CONFIG.TIER_META[state.tier].label} mode`
+  const badgeLabel = state.tier === CONFIG.TIERS.UNLAD ? 'Live' : CONFIG.TIER_META[state.tier].label
   const initials = state.user?.avatar || state.user?.name?.charAt(0) || '?'
 
   return (
     <div
       className="flex items-center justify-between shrink-0"
-      style={{ background: '#1a3fdb', padding: '14px 16px 12px', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px' }}
+      style={{ background: '#ffffff', padding: '14px 16px 12px', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px' }}
     >
       <div className="flex items-center gap-2.5">
         <div
           className="flex items-center justify-center shrink-0 overflow-hidden"
-          style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)' }}
+          style={{ width: '36px', height: '36px', borderRadius: '8px', background: BLUE }}
         >
           <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-full h-full object-cover" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-          <span style={{ fontSize: '16px', fontWeight: 500, color: '#ffffff' }}>EzTrack</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+          <span style={{ fontSize: '16px', fontWeight: 500, color: BLUE }}>EzTrack</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '1px 7px', borderRadius: '999px', background: `${BLUE}10` }}>
             <span
               style={{
                 width: '5px',
@@ -36,7 +38,7 @@ export default function TopBar() {
                 flexShrink: 0,
               }}
             />
-            <span style={{ fontSize: '10px', color: 'rgba(255,255,255,0.65)' }}>{badgeLabel}</span>
+            <span style={{ fontSize: '10px', color: BLUE, fontWeight: 500 }}>{badgeLabel}</span>
           </div>
         </div>
       </div>
@@ -44,10 +46,10 @@ export default function TopBar() {
       <div className="flex items-center gap-1">
         <NotificationsModal>
           <button
-            className="flex items-center justify-center relative cursor-pointer hover:brightness-110 transition-all"
-            style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255,255,255,0.10)', border: 'none' }}
+            className="flex items-center justify-center relative cursor-pointer transition-all hover:brightness-95"
+            style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${BLUE}08`, border: 'none' }}
           >
-            <Bell size={18} color="rgba(255,255,255,0.85)" strokeWidth={2} />
+            <Bell size={18} color={BLUE} strokeWidth={2} />
             <span
               style={{
                 width: '6px',
@@ -57,7 +59,7 @@ export default function TopBar() {
                 position: 'absolute',
                 top: '6px',
                 right: '6px',
-                border: '1.5px solid #1a3fdb',
+                border: '1.5px solid #ffffff',
               }}
             />
           </button>
@@ -65,8 +67,8 @@ export default function TopBar() {
 
         <Link
           to="/app/profile"
-          className="flex items-center justify-center transition-all hover:brightness-110"
-          style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255,255,255,0.10)' }}
+          className="flex items-center justify-center transition-all hover:brightness-95"
+          style={{ width: '36px', height: '36px', borderRadius: '8px', background: `${BLUE}08` }}
         >
           {state.user?.avatar ? (
             <div
@@ -74,7 +76,7 @@ export default function TopBar() {
               style={{
                 width: '32px',
                 height: '32px',
-                background: 'rgba(255,255,255,0.15)',
+                background: BLUE,
                 color: '#ffffff',
                 fontSize: '12px',
                 fontWeight: 500,
@@ -83,7 +85,7 @@ export default function TopBar() {
               {initials}
             </div>
           ) : (
-            <User size={18} color="rgba(255,255,255,0.85)" strokeWidth={2} />
+            <User size={18} color={BLUE} strokeWidth={2} />
           )}
         </Link>
       </div>
