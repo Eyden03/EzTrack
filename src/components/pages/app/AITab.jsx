@@ -335,7 +335,7 @@ export default function AITab() {
               ))}
               {msg.role === 'ai' && msg.tools?.some(t => ['generate_receipt', 'generate_invoice', 'generate_report'].includes(t)) && (
                 <button
-                  onClick={() => navigate('/app/reports')}
+                  onClick={() => navigate('/app/reports', { state: { tab: 'documents' } })}
                   className="mt-2 text-[11px] text-blue-600 font-semibold hover:text-blue-700 flex items-center gap-1"
                 >
                   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-3.5 h-3.5">

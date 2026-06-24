@@ -1,11 +1,13 @@
 import { useState } from 'react'
+import { useLocation } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import { WEEKDATA } from '@/data/weekdata'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts'
 
 export default function ReportsTab() {
-  const [tab, setTab] = useState('analytics')
+  const location = useLocation()
+  const [tab, setTab] = useState(location.state?.tab || 'analytics')
   const { state } = useApp()
   const docs = state.documents
   const tier = state.tier
