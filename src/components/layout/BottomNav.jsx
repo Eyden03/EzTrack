@@ -11,7 +11,7 @@ const TABS = [
 
 export default function BottomNav() {
   return (
-    <nav className="flex items-start border-t border-gray-200 bg-white h-[72px] pb-[env(safe-area-inset-bottom)]">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-start border-t border-gray-200 bg-white h-[72px] pb-[env(safe-area-inset-bottom)]">
       {TABS.slice(0, 2).map(tab => (
         <NavLink key={tab.to} to={tab.to} end
           className={({ isActive }) =>

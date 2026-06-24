@@ -27,22 +27,22 @@ export default function AppLayout() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-dvh">
       <TopBar />
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[env(safe-area-inset-bottom)]">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[72px]">
         <Outlet key={outletKey} />
+        {state.tier !== CONFIG.TIERS.UNLAD && (
+          <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-100 shrink-0">
+            <p className="text-[11px] text-amber-800 text-center">
+              Want to see the full feature set?{' '}
+              <button onClick={handleTryUnlad} className="font-semibold underline hover:text-amber-900">
+                Try the Unlad demo
+              </button>
+              {' '}with Rosa Magsaysay.
+            </p>
+          </div>
+        )}
       </div>
-      {state.tier !== CONFIG.TIERS.UNLAD && (
-        <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-100 shrink-0">
-          <p className="text-[11px] text-amber-800 text-center">
-            Want to see the full feature set?{' '}
-            <button onClick={handleTryUnlad} className="font-semibold underline hover:text-amber-900">
-              Try the Unlad demo
-            </button>
-            {' '}with Rosa Magsaysay.
-          </p>
-        </div>
-      )}
       <BottomNav />
       {splashing && (
         <div className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-gray-900 text-white">
