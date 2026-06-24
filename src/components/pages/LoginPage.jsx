@@ -9,9 +9,13 @@ export default function LoginPage() {
   const { dispatch } = useApp()
   const navigate = useNavigate()
   const [profiles, setProfiles] = useState([])
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    api.get('/profiles').then(setProfiles).catch(() => {})
+    api.get('/profiles').then(data => {
+      setProfiles(data)
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   async function handleLogin(profileId) {
@@ -36,9 +40,22 @@ export default function LoginPage() {
       </p>
 
       <div className="flex-1 overflow-y-auto space-y-3 pb-4">
-        {profiles.map(p => (
-          <ProfileCard key={p.id} profile={p} onSelect={handleLogin} />
-        ))}
+        {loading ? (
+          [1, 2, 3].map(i => (
+            <div key={i} className="flex items-center gap-4 p-4 rounded-xl border border-gray-200 bg-white animate-pulse">
+              <div className="w-10 h-10 rounded-full bg-gray-200 flex-shrink-0" />
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-gray-200 rounded w-24" />
+                <div className="h-3 bg-gray-100 rounded w-40" />
+              </div>
+              <div className="h-6 w-16 rounded-full bg-gray-200 flex-shrink-0" />
+            </div>
+          ))
+        ) : (
+          profiles.map(p => (
+            <ProfileCard key={p.id} profile={p} onSelect={handleLogin} />
+          ))
+        )}
       </div>
 
       <div className="flex items-center gap-3 my-5">
