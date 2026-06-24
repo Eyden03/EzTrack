@@ -64,15 +64,17 @@ function ThinkingIndicator() {
   }, [])
 
   return (
-    <div className="px-4 py-2 bg-white/80 backdrop-blur-sm border-t border-gray-100 flex items-center justify-center gap-2">
-      <div className="flex gap-1">
-        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" />
-        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.1s]" />
-        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.2s]" />
+    <div className="flex items-center justify-center py-1">
+      <div className="flex items-center justify-center gap-2 px-4 py-1.5 bg-gray-100/80 backdrop-blur-sm rounded-full">
+        <div className="flex gap-1">
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" />
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.1s]" />
+          <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.2s]" />
+        </div>
+        <span key={phase} className="text-xs text-gray-400 font-medium animate-word-fade">
+          {phrases[phase]}
+        </span>
       </div>
-      <span key={phase} className="text-xs text-gray-400 font-medium animate-word-fade">
-        {phrases[phase]}
-      </span>
     </div>
   )
 }
