@@ -21,6 +21,7 @@ const initialState = {
   chatMessages: [],
   documents: [],
   isAiThinking: false,
+  showSuggestions: true,
 }
 
 function reducer(state, action) {
@@ -91,6 +92,8 @@ function reducer(state, action) {
     }
     case 'SET_AI_THINKING':
       return { ...state, isAiThinking: action.payload }
+    case 'SET_SHOW_SUGGESTIONS':
+      return { ...state, showSuggestions: action.payload }
     default:
       return state
   }

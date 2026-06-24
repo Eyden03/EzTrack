@@ -86,7 +86,7 @@ export default function AITab() {
   const [input, setInput] = useState('')
   const isTyping = state.isAiThinking
   const [cooldown, setCooldown] = useState(false)
-  const [showSuggestions, setShowSuggestions] = useState(true)
+  const showSuggestions = state.showSuggestions
   const queriesRemaining = state.simulaQueriesRemaining
   const tier = state.tier
   const isSimulaExhausted = tier === CONFIG.TIERS.SIMULA && queriesRemaining <= 0
@@ -238,7 +238,7 @@ export default function AITab() {
       return
     }
 
-    setShowSuggestions(false)
+    dispatch({ type: 'SET_SHOW_SUGGESTIONS', payload: false })
     const userMsg = { role: 'user', text: text.trim(), ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) }
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: userMsg })
     setInput('')
@@ -386,7 +386,7 @@ export default function AITab() {
       {!isSimulaExhausted && chips.length > 0 && (
         <div className="px-4 py-2 border-t border-gray-100">
           <button
-            onClick={() => setShowSuggestions(!showSuggestions)}
+            onClick={() => dispatch({ type: 'SET_SHOW_SUGGESTIONS', payload: !showSuggestions })}
             className="flex items-center justify-between w-full text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-2"
           >
             Suggestions
@@ -425,7 +425,7 @@ export default function AITab() {
         <div className="px-4 py-3 border-t border-gray-100">
           <div className="flex gap-2">
             <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
-              onFocus={() => showSuggestions && setShowSuggestions(false)}
+              onFocus={() => showSuggestions && dispatch({ type: 'SET_SHOW_SUGGESTIONS', payload: false })}
               placeholder="Ask about your finances..." maxLength={500}
               className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
             <button onClick={() => handleSend(input)} disabled={!input.trim() || cooldown}
