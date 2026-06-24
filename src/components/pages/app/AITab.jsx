@@ -60,6 +60,7 @@ export default function AITab() {
   const messages = state.chatMessages
   const [input, setInput] = useState('')
   const [isTyping, setIsTyping] = useState(false)
+  const [cooldown, setCooldown] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(true)
   const queriesRemaining = state.simulaQueriesRemaining
   const tier = state.tier
@@ -138,13 +139,7 @@ export default function AITab() {
 
   async function callLLM(messages, ctx) {
     try {
-      const res = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages, context: ctx }),
-      })
-      if (!res.ok) return null
-      const data = await res.json()
+      const data = await api.post('/chat', { messages, context: ctx })
       return {
         reply: data.choices?.[0]?.message?.content || '',
         toolCallsUsed: data.tool_calls_used || [],
@@ -168,6 +163,9 @@ export default function AITab() {
     setIsTyping(true)
 
     if (tier === CONFIG.TIERS.SIMULA) dispatch({ type: 'DECREMENT_QUERY' })
+
+    setCooldown(true)
+    setTimeout(() => setCooldown(false), 3000)
 
     const ctx = buildContext()
     const chatHistory = messages.map(m => ({ role: m.role === 'ai' ? 'assistant' : m.role, content: m.text }))
@@ -303,9 +301,9 @@ export default function AITab() {
         <div className="px-4 py-3 border-t border-gray-100">
           <div className="flex gap-2">
             <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder="Ask about your finances..."
+              placeholder="Ask about your finances..." maxLength={500}
               className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
-            <button onClick={() => handleSend(input)} disabled={!input.trim()}
+            <button onClick={() => handleSend(input)} disabled={!input.trim() || cooldown}
               className="px-4 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-bold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 transition-colors">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
             </button>

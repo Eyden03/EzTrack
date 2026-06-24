@@ -8,6 +8,9 @@ const __dirname = fileURLToPath(new URL('.', import.meta.url))
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  define: {
+    'import.meta.env.VITE_API_KEY': JSON.stringify(process.env.VITE_API_KEY || 'ez_shared_dev_key_change_in_prod'),
+  },
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),

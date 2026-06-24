@@ -53,7 +53,7 @@ export default function AddItemModal({ open: extOpen, onOpenChange: extOnChange,
         <form onSubmit={handleSubmit} className="px-4 pb-6 space-y-4">
           <div>
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Item Name</label>
-            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Cooking Oil"
+            <input type="text" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Cooking Oil" maxLength={100}
               className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
           </div>
 

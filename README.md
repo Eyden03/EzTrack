@@ -1,19 +1,30 @@
 # EzTrack
 
-**Financial Companion for Filipino SMBs** — a frontend prototype/demo for CCS0103 Technopreneurship at FEU Institute of Technology.
+**Financial Companion for Filipino SMBs** — a React SPA with a Python FastAPI backend, built for CCS0103 Technopreneurship at FEU Institute of Technology.
 
-Track income & expenses, manage inventory, get AI-powered insights, and generate financial reports — all client-side with an optional LLM backend.
+Track income & expenses, manage inventory, get AI-powered insights, and generate receipts/invoices/reports.
 
 ---
 
 ## Quick Start
 
 ```bash
-cp .env.example .env    # configure your LLM API key
-node backend/api.js     # serves on http://localhost:3001
+cp .env.example .env                 # configure LLM API key + shared API key
 ```
 
-Open http://localhost:3001, pick a demo account (Simula/Sigla/Unlad), and explore.
+**Backend** (Python FastAPI):
+```bash
+pip install -r backend/requirements.txt
+python3 -m uvicorn backend.server:app --reload --port 3001
+```
+
+**Frontend** (React + Vite):
+```bash
+npm install
+npm run dev
+```
+
+Open http://localhost:5173, pick a demo account (Simula/Sigla/Unlad), and explore.
 
 See `AGENTS.md` for detailed architecture and conventions.
 
@@ -23,10 +34,14 @@ See `AGENTS.md` for detailed architecture and conventions.
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Vanilla HTML/CSS/JS — no frameworks, no bundler |
-| Persistence | SQLite via `sql.js` WASM, serialized to `localStorage` |
-| AI Chat | OpenAI-compatible API via `backend/api.js` proxy (DeepSeek, OpenAI, Ollama, etc.) |
-| Secrets | `.env` file read server-side, never exposed to browser |
+| Frontend | React 19, JSX, shadcn/ui (Radix primitives), Tailwind CSS v4, Vite 6 |
+| Backend | Python 3 + FastAPI + uvicorn, SQLite3 (server-side) |
+| AI Chat | OpenAI-compatible API via FastAPI proxy (DeepSeek, OpenAI, Ollama, etc.) |
+| Auth | Shared API key (`X-API-Key` header) — no session/JWT for prototype |
+| Rate Limiting | slowapi (in-memory) — `/chat`: 10/min, `/login`: 20/min, others: 60/min |
+| Input Validation | Pydantic v2 models on all write endpoints |
+| Document Gen | python-docx — receipts, invoices, sales reports (6 .docx templates) |
+| Secrets | `.env` file read server-side |
 
 ---
 
@@ -34,43 +49,47 @@ See `AGENTS.md` for detailed architecture and conventions.
 
 ```
 backend/
-  api.js                  # Node.js server — static files + /api/chat proxy
+  server.py               # FastAPI app — 17 REST endpoints, LLM chat loop, rate limiting
+  database.py             # SQLite schema, 5 tables, full CRUD, seed data (3 profiles)
   system-prompt.txt       # LLM system prompt template ({{placeholder}} tokens)
-  tools/                  # Tool registry, definitions, and handler modules
-    _registry.js
-    definitions.json
-    core.js  transactions.js  inventory.js  customers.js
-    goals.js  forecasting.js  tax.js  restock.js
-css/
-  variables.css           # design tokens (blue palette, fonts, radii)
-  base.css                # reset, viewport shell, page system, bottom nav
-  components.css          # buttons, forms, modals, pills, cards
-  pages.css               # page-specific styles + print overlay
-js/
-  config.js               # single source of all constants (TIERS, TX, limits, labels)
-  state.js                # STATE object, WEEKDATA, AI_CHAT, AI_RESPONSES
-  db.js                   # SQLite wrapper (sql.js) — schema, seed, CRUD, persistence
-  utils.js                # show(), hide(), showToast()
-  navigation.js           # goTo(), switchTab()
-  auth.js                 # profile picker, login, register, business setup
-  plans.js                # plan picker with billing toggle
-  home.js                 # heartbeat card, stats grid, insight, transaction list
-  reports.js              # bar chart, summaries, streak, generate report
-  inventory.js            # inventory list, tier-gated extras, add item
-  ai.js                   # AI chat UI, real LLM calls, keyword fallback
-  profile.js              # profile tab, subscription card, support gating
-  modals.js               # log transaction, language, add inventory item modals
-  main.js                 # bootstrap — DB.init(), render cards, splash, login
-assets/
-  images/logo.jpg
-.evn.example              # LLM API configuration template
+  requirements.txt        # Python dependencies
+  .env                    # API keys (not committed)
+  templates/              # .docx template files + Python builders
+    receipt.py            #   generate_receipt — fills receipt template
+    invoice.py            #   generate_invoice — fills invoice template
+    report.py             #   generate_report — fills sales report template
+    Basic\ Receipt.docx   #   (template for non-VAT receipts)
+    ...                   #   5 more .docx templates
+  tools/                  # Tool registry, definitions, and 14 handler modules
+    registry.py           #   tool def loader, tier filter, dispatcher
+    definitions.json      #   17 tool definitions
+    documents.py          #   generate_receipt, generate_invoice, generate_report
+    math.py               #   calculate (AST-parsed safe eval)
+    table.py              #   render_table (server-side structured data)
+    ...                   #   plus transactions.py, inventory.py, customers.py, etc.
+src/
+  components/
+    layout/               # TopBar, BottomNav, AppLayout (app shell)
+    pages/                # Splash, Login, Register, Plans, Setup1/2
+    pages/app/            # HomeTab, ReportsTab, InventoryTab, AITab, ProfileTab
+    modals/               # LogTransaction, AddItem, AddCustomer, AddGoal, AddMenu
+    ui/                   # shadcn/ui primitives (button, card, drawer, input, etc.)
+  context/
+    AppContext.jsx         # useReducer state + provider (transactions, inventory, etc.)
+  lib/
+    api.js                # Fetch wrapper with X-API-Key header
+  config.js               # All constants (TIERS, TX, limits, labels, plans)
+  data/                   # Static data (aiResponses.js, suggestionChips.js)
+  App.jsx                 # Router — splash → login → register → plans → setup → app
+  main.jsx                # Entry point
+old/                      # Original vanilla JS code preserved
 ```
 
 ---
 
 ## AI Chat & Tool Calling
 
-The AI assistant uses function calling to read/write financial data. Tools are gated by tier.
+The AI assistant uses function calling to read/write financial data. Tools are gated by tier. The server runs **multi-round tool loops** (up to 5 rounds) until the LLM decides to respond.
 
 ### Tier Access
 
@@ -85,24 +104,68 @@ The AI assistant uses function calling to read/write financial data. Tools are g
 | `add_inventory_item` | Add stock item | ❌ | ✅ | ✅ |
 | `set_stock_threshold` | Set min stock alert level | ❌ | ✅ | ✅ |
 | `add_customer` | Save customer record | ❌ | ✅ | ✅ |
+| `generate_receipt` | Generate basic receipt (.docx) | ❌ | ✅ | ✅ |
+| `generate_invoice` | Generate invoice (.docx) | ❌ | ❌ | ✅ |
+| `update_inventory_item` | Update stock item fields | ❌ | ❌ | ✅ |
+| `remove_inventory_item` | Delete stock item | ❌ | ❌ | ✅ |
 | `set_financial_goal` | Set profit target with deadline | ❌ | ❌ | ✅ |
 | `check_goal_progress` | Monitor goal status | ❌ | ❌ | ✅ |
 | `forecast_cashflow` | 30-day projection | ❌ | ❌ | ✅ |
 | `check_tax_deadlines` | Upcoming BIR dates | ❌ | ❌ | ✅ |
 | `check_restock_needs` | What's below threshold? | ❌ | ❌ | ✅ |
-
-*`generate_invoice` and `generate_report` (`.docx`) are planned but not yet implemented.*
-
-Each inference call type maps to a cost allocation — see `costing.md` for the breakdown.
+| `generate_report` | Generate sales report (.docx) | ❌ | ❌ | ✅ |
+| `calculate` | Safe arithmetic evaluation | ✅ | ✅ | ✅ |
+| `render_table` | Display structured tables in chat | ✅ | ✅ | ✅ |
 
 ### How it works
 
 1. User types a message in the AI tab
-2. `js/ai.js` → `POST /api/chat` with conversation history + financial context
-3. `backend/api.js` builds a system prompt from `backend/system-prompt.txt`, injects context (business name, weekly totals, top category, recent transactions)
+2. `AITab.jsx` → `POST /api/chat` with conversation history + financial context
+3. `backend/server.py` builds a system prompt from `backend/system-prompt.txt`, injects context (business name, weekly totals, top category, recent transactions)
 4. Sends to the configured LLM with tool definitions for the user's tier
-5. If the LLM requests a tool call, the server executes it against the SQLite DB, feeds the result back to the LLM, and returns the final text response
-6. If the server or API is unreachable, falls back to keyword-matched demo responses
+5. If the LLM requests a tool call, the server executes it against the SQLite DB, feeds the result back to the LLM, and repeats up to 5 rounds
+6. Returns final text response, list of tool calls used, and any render_table data
+7. Write operations return `mutations` applied client-side via context dispatch
+
+---
+
+## API Endpoints
+
+| Method | Path | Description | Rate Limit |
+|--------|------|-------------|-----------|
+| `GET` | `/api/profiles` | List all demo profiles | 60/min |
+| `POST` | `/api/login/{id}` | Load full profile state | 20/min |
+| `POST` | `/api/register` | Create new profile | 10/min |
+| `PUT` | `/api/profile` | Update profile fields | 60/min |
+| `GET` | `/api/transactions` | List transactions | 60/min |
+| `POST` | `/api/transactions` | Add transaction | 60/min |
+| `DELETE` | `/api/transactions/{id}` | Delete transaction | 60/min |
+| `GET` | `/api/inventory` | List inventory | 60/min |
+| `POST` | `/api/inventory` | Add inventory item | 60/min |
+| `GET` | `/api/customers` | List customers | 60/min |
+| `POST` | `/api/customers` | Add customer | 60/min |
+| `GET` | `/api/goals` | List goals | 60/min |
+| `POST` | `/api/goals` | Add goal | 60/min |
+| `POST` | `/api/chat` | AI chat (multi-round tool loop) | 10/min |
+| `POST` | `/api/refresh/{id}` | Reload profile state | 60/min |
+| `GET` | `/api/documents/{id}` | List generated documents | 60/min |
+| `GET` | `/api/documents/{id}/{filename}` | Download .docx file | 60/min |
+
+All endpoints require `X-API-Key` header. All inputs validated via Pydantic models.
+
+---
+
+## Security (prototype-grade)
+
+| Measure | Implementation |
+|---------|---------------|
+| API key auth | `X-API-Key` header checked by middleware; set via `API_KEY` in `.env` |
+| Rate limiting | slowapi — 10/min on chat (costs real money), 20/min on login, 60/min elsewhere |
+| Input validation | Pydantic v2 — type checks, length limits, regex patterns on all write endpoints |
+| CORS | Locked to `http://localhost:5173,http://localhost:3000` (configurable) |
+| Security headers | `X-Content-Type-Options`, `X-Frame-Options`, `X-XSS-Protection` |
+| SQL injection | Parameterized queries; column names whitelisted in dynamic `SET` clauses |
+| Frontend limits | Chat cooldown (3s), 500-char input cap, `maxLength` on all form inputs |
 
 ---
 
@@ -114,6 +177,7 @@ Each inference call type maps to a cost allocation — see `costing.md` for the 
 | `costing.md` | Infrastructure cost analysis per user per tier |
 | `business_plan.md` | Business Model Canvas |
 | `AGENTS.md` | Repository conventions for AI coding agents |
+| `ARCHITECTURE.md` | Full architecture, data flow, component breakdown |
 
 ---
 

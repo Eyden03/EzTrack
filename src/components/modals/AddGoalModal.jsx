@@ -39,7 +39,7 @@ export default function AddGoalModal({ open: extOpen, onOpenChange: extOnChange,
           <div>
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Goal Name</label>
             <input type="text" value={name} onChange={e => setName(e.target.value)}
-              placeholder="e.g. Save ₱50,000 by December"
+              placeholder="e.g. Save ₱50,000 by December" maxLength={150}
               className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
           </div>
           <div>

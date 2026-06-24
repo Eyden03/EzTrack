@@ -76,7 +76,7 @@ export default function LogTransactionModal({ open: extOpen, onOpenChange: extOn
 
           <div>
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Description</label>
-            <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. Store sales"
+            <input type="text" value={desc} onChange={e => setDesc(e.target.value)} placeholder="e.g. Store sales" maxLength={200}
               className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
           </div>
 

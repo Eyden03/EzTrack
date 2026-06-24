@@ -1,7 +1,14 @@
 const BASE = '/api'
+const KEY = import.meta.env.VITE_API_KEY || ''
+
+function headers() {
+  const h = { 'Content-Type': 'application/json' }
+  if (KEY) h['X-API-Key'] = KEY
+  return h
+}
 
 async function get(path) {
-  const res = await fetch(BASE + path)
+  const res = await fetch(BASE + path, { headers: headers() })
   if (!res.ok) throw new Error(await res.text())
   return res.json()
 }
@@ -9,7 +16,7 @@ async function get(path) {
 async function post(path, data) {
   const res = await fetch(BASE + path, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers(),
     body: JSON.stringify(data),
   })
   if (!res.ok) throw new Error(await res.text())
@@ -17,7 +24,7 @@ async function post(path, data) {
 }
 
 async function del(path) {
-  const res = await fetch(BASE + path, { method: 'DELETE' })
+  const res = await fetch(BASE + path, { method: 'DELETE', headers: headers() })
   if (!res.ok) throw new Error(await res.text())
   return res.json()
 }
@@ -25,7 +32,7 @@ async function del(path) {
 async function put(path, data) {
   const res = await fetch(BASE + path, {
     method: 'PUT',
-    headers: { 'Content-Type': 'application/json' },
+    headers: headers(),
     body: JSON.stringify(data),
   })
   if (!res.ok) throw new Error(await res.text())

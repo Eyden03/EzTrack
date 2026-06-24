@@ -1,3 +1,5 @@
+export const API_KEY = import.meta.env.VITE_API_KEY || ''
+
 export const TIERS = { SIMULA: 'simula', SIGLA: 'sigla', UNLAD: 'unlad' }
 export const TX_TYPES = { INCOME: 'inc', EXPENSE: 'exp' }
 

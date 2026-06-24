@@ -106,8 +106,10 @@ def create_profile(conn, data):
     conn.commit()
     return c.lastrowid
 
+PROFILE_ALLOWED_KEYS = {"name", "email", "avatar", "biz_name", "biz_type", "biz_city", "lang", "tier"}
+
 def update_profile(conn, profile_id, data):
-    keys = [k for k in data if data[k] is not None]
+    keys = [k for k in data if data[k] is not None and k in PROFILE_ALLOWED_KEYS]
     if not keys:
         return
     set_clause = ", ".join(f"{k}=?" for k in keys)
@@ -153,8 +155,10 @@ def set_stock_threshold(conn, item_id, min_threshold):
     conn.execute("UPDATE inventory SET min_threshold=? WHERE id=?", (min_threshold, item_id))
     conn.commit()
 
+INVENTORY_ALLOWED_KEYS = {"name", "qty", "unit", "min_threshold"}
+
 def update_inventory_item(conn, item_id, data):
-    keys = [k for k in data if data[k] is not None]
+    keys = [k for k in data if data[k] is not None and k in INVENTORY_ALLOWED_KEYS]
     if not keys:
         return
     set_clause = ", ".join(f"{k}=?" for k in keys)

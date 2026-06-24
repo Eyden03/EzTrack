@@ -35,13 +35,13 @@ export default function AddCustomerModal({ open: extOpen, onOpenChange: extOnCha
           <div>
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Customer Name</label>
             <input type="text" value={name} onChange={e => setName(e.target.value)}
-              placeholder="e.g. Reyes Canteen"
+              placeholder="e.g. Reyes Canteen" maxLength={150}
               className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
           </div>
           <div>
             <label className="block text-[11px] font-bold text-gray-400 uppercase tracking-wide mb-1.5">Contact</label>
             <input type="text" value={contact} onChange={e => setContact(e.target.value)}
-              placeholder="Phone or email"
+              placeholder="Phone or email" maxLength={200}
               className="w-full px-4 py-3.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
           </div>
           <button type="submit"
