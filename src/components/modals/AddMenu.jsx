@@ -8,11 +8,18 @@ import AddCustomerModal from '@/components/modals/AddCustomerModal'
 import AddGoalModal from '@/components/modals/AddGoalModal'
 
 const TYPES = [
-  { key: 'transaction', label: 'Log Transaction', tier: ['simula', 'sigla', 'unlad'], icon: 'M12 6v6m0 0v6m0-6h6m-6 0H6' },
-  { key: 'inventory', label: 'Inventory Item', tier: ['simula', 'sigla', 'unlad'], icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
-  { key: 'customer', label: 'Add Customer', tier: ['sigla', 'unlad'], icon: 'M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z' },
-  { key: 'goal', label: 'Set Goal', tier: ['unlad'], icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
+  { key: 'transaction', label: 'Log Transaction', sub: 'Record income or expense', tier: ['simula', 'sigla', 'unlad'], color: 'green', icon: 'M12 20V10m0 10l-4-4m4 4l4-4m2-16H6a2 2 0 00-2 2v12a2 2 0 002 2h12a2 2 0 002-2V6a2 2 0 00-2-2z' },
+  { key: 'inventory', label: 'Inventory Item', sub: 'Add item with stock level', tier: ['simula', 'sigla', 'unlad'], color: 'blue', icon: 'M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4' },
+  { key: 'customer', label: 'Add Customer', sub: 'Save name and contact', tier: ['sigla', 'unlad'], color: 'amber', icon: 'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7zM19 8v6m-3-3h6' },
+  { key: 'goal', label: 'Set Goal', sub: 'Set target amount and deadline', tier: ['unlad'], color: 'indigo', icon: 'M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z' },
 ]
+
+const COLOR_MAP = {
+  green: 'bg-green-50 text-green-600',
+  blue: 'bg-blue-50 text-blue-600',
+  amber: 'bg-amber-50 text-amber-600',
+  indigo: 'bg-indigo-50 text-indigo-600',
+}
 
 function PlusIcon() {
   return (
@@ -49,20 +56,25 @@ export default function AddMenu() {
         </DrawerTrigger>
         <DrawerContent>
           <DrawerHeader><DrawerTitle>Add New</DrawerTitle></DrawerHeader>
-          <div className="px-4 pb-6 space-y-1">
+          <div className="px-4 pb-6 space-y-2">
             {visibleTypes.map(t => (
               <button
                 key={t.key}
                 onClick={() => handleSelect(t.key)}
-                className="w-full flex items-center gap-3 p-4 rounded-xl hover:bg-gray-50 transition-colors text-left"
+                className="w-full rounded-xl border border-gray-200 bg-white p-4 hover:border-blue-300 hover:shadow-sm transition-all text-left"
               >
-                <div className="w-9 h-9 rounded-lg bg-blue-50 flex items-center justify-center shrink-0">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="#2563EB" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
-                    <path d={t.icon} />
-                  </svg>
+                <div className="flex items-center gap-3">
+                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${COLOR_MAP[t.color]}`}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[18px] h-[18px]">
+                      <path d={t.icon} />
+                    </svg>
+                  </div>
+                  <div className="flex-1">
+                    <div className="text-sm font-semibold text-gray-800">{t.label}</div>
+                    <div className="text-[11px] text-gray-400 mt-0.5">{t.sub}</div>
+                  </div>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" className="w-4 h-4"><polyline points="9 18 15 12 9 6" /></svg>
                 </div>
-                <span className="text-sm font-semibold text-gray-800">{t.label}</span>
-                <svg viewBox="0 0 24 24" fill="none" stroke="#94A3B8" strokeWidth="2" className="w-4 h-4 ml-auto"><polyline points="9 18 15 12 9 6" /></svg>
               </button>
             ))}
           </div>
