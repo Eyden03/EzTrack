@@ -257,6 +257,30 @@ export default function AITab() {
     if (e.key === 'Enter') handleSend(input)
   }
 
+  const TOOL_LABELS = {
+    calculate: 'Computed numbers',
+    render_table: 'Prepared a table',
+    list_transactions: 'Checked transactions',
+    list_inventory: 'Checked inventory',
+    get_insight_card: 'Generated insight',
+    check_overspending: 'Checked spending',
+    add_transaction: 'Logged a transaction',
+    delete_transaction: 'Removed a transaction',
+    add_inventory_item: 'Added inventory item',
+    update_inventory_item: 'Updated inventory item',
+    remove_inventory_item: 'Removed inventory item',
+    set_stock_threshold: 'Updated stock alert',
+    add_customer: 'Added customer',
+    set_financial_goal: 'Set a financial goal',
+    check_goal_progress: 'Checked goal progress',
+    forecast_cashflow: 'Ran cash flow forecast',
+    check_tax_deadlines: 'Checked tax deadlines',
+    check_restock_needs: 'Checked restock needs',
+    generate_receipt: 'Generated a receipt',
+    generate_invoice: 'Generated an invoice',
+    generate_report: 'Generated a report',
+  }
+
   const chips = getSuggestionChips(tier)
 
   return (
@@ -280,7 +304,7 @@ export default function AITab() {
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} ${msg.role === 'user' ? 'animate-pop-in' : ''}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}>
               {showTools && (
-                <div className="text-[10px] text-gray-400 mb-1">Used: {[...new Set(msg.tools)].join(', ')}</div>
+                <div className="text-[10px] text-gray-400 mb-1">{[...new Set(msg.tools)].map(t => TOOL_LABELS[t] || t).join(' · ')}</div>
               )}
               <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: displayText }} />
               {msg.tables?.map((t, ti) => (
