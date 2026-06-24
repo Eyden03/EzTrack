@@ -1,6 +1,5 @@
 import { Link } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
-import { CONFIG } from '@/config'
 import NotificationsModal from '@/components/modals/NotificationsModal'
 import { Bell, User } from 'lucide-react'
 
@@ -8,9 +7,6 @@ const BLUE = '#1a3fdb'
 
 export default function TopBar() {
   const { state } = useApp()
-
-  const badgeColor = state.tier === CONFIG.TIERS.UNLAD ? '#4ade80' : '#facc15'
-  const badgeLabel = state.tier === CONFIG.TIERS.UNLAD ? 'Live' : CONFIG.TIER_META[state.tier].label
   const initials = state.user?.avatar || state.user?.name?.charAt(0) || '?'
 
   return (
@@ -25,22 +21,7 @@ export default function TopBar() {
         >
           <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-full h-full object-cover" />
         </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
-          <span style={{ fontSize: '16px', fontWeight: 500, color: BLUE }}>EzTrack</span>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '4px', padding: '1px 7px', borderRadius: '999px', background: `${BLUE}10` }}>
-            <span
-              style={{
-                width: '5px',
-                height: '5px',
-                borderRadius: '50%',
-                background: badgeColor,
-                flexShrink: 0,
-              }}
-            />
-            <span style={{ fontSize: '10px', color: BLUE, fontWeight: 500 }}>{badgeLabel}</span>
-          </div>
-        </div>
+        <span style={{ fontSize: '22px', fontWeight: 500, color: BLUE, lineHeight: '36px' }}>EzTrack</span>
       </div>
 
       <div className="flex items-center gap-1">
