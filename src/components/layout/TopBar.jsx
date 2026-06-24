@@ -14,7 +14,7 @@ export default function TopBar() {
   return (
     <div
       className="flex items-center justify-between shrink-0"
-      style={{ background: '#1a3fdb', padding: '14px 16px 12px' }}
+      style={{ background: '#1a3fdb', padding: '14px 16px 12px', borderBottomLeftRadius: '16px', borderBottomRightRadius: '16px' }}
     >
       <div className="flex items-center gap-2.5">
         <div
