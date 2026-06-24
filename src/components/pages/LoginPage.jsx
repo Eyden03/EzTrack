@@ -2,7 +2,6 @@ import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { api } from '@/lib/api'
-import { toast } from 'sonner'
 import ProfileCard from '@/components/shared/ProfileCard'
 
 export default function LoginPage() {
@@ -57,19 +56,6 @@ export default function LoginPage() {
           ))
         )}
       </div>
-
-      <div className="flex items-center gap-3 my-5">
-        <div className="flex-1 h-px bg-gray-200" />
-        <span className="text-xs text-gray-400">or</span>
-        <div className="flex-1 h-px bg-gray-200" />
-      </div>
-
-      <button
-        onClick={() => toast.error('Create Account is currently unavailable. Please choose one of the demo accounts above.')}
-        className="w-full py-3.5 rounded-xl border-2 border-gray-200 bg-white text-gray-700 font-semibold text-sm text-center hover:bg-gray-50 transition-colors"
-      >
-        Create New Account
-      </button>
 
       <p className="text-[11px] text-gray-400 text-center mt-4 mb-6 leading-relaxed">
         By continuing, you agree to our{' '}
