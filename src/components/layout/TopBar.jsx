@@ -29,7 +29,7 @@ export default function TopBar() {
       <div className="flex items-center gap-0.2">
         <div
           className="flex items-center justify-center shrink-0 overflow-hidden"
-          style={{ width: '60px', height: '60px', borderRadius: '8px', background: '#e8edfb' }}
+          style={{ width: '60px', height: '60px' }}
         >
           <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-full h-full object-cover" />
         </div>
