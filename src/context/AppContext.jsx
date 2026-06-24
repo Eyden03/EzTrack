@@ -84,7 +84,7 @@ function reducer(state, action) {
     case 'ADD_CHAT_MESSAGE':
       return { ...state, chatMessages: [...state.chatMessages, action.payload] }
     case 'ADD_DOCUMENT': {
-      const docs = [...state.documents, action.payload]
+      const docs = [action.payload, ...state.documents]
       localStorage.setItem('eztrack_docs', JSON.stringify(docs))
       return { ...state, documents: docs }
     }

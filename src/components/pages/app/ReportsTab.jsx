@@ -252,7 +252,12 @@ export default function ReportsTab() {
             <div key={i} className="rounded-xl border border-gray-200 bg-white p-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{d.type}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wide">{d.type}</span>
+                    {i === 0 && (
+                      <span className="text-[9px] font-bold text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded-full uppercase">New</span>
+                    )}
+                  </div>
                   <div className="text-sm font-semibold text-gray-800 mt-0.5">{d.title}</div>
                   <div className="text-xs text-gray-400 mt-0.5">{d.date}</div>
                 </div>
