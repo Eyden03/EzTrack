@@ -56,12 +56,17 @@ function ScrollRow({ children }) {
 
 function ThinkingIndicator() {
   const [phase, setPhase] = useState(0)
-  const phrases = ['Thinking', 'Let me see', 'Checking', 'One moment']
+  const [isLongWait, setIsLongWait] = useState(false)
+  const short = ['Thinking', 'Let me see', 'Checking', 'One moment']
+  const long = ['Sorry just a bit more', 'Let me look at that', 'Checking your transaction', 'Still on it']
 
   useEffect(() => {
-    const id = setInterval(() => setPhase(p => (p + 1) % phrases.length), 1800)
-    return () => clearInterval(id)
-  }, [])
+    const longTimer = setTimeout(() => { setIsLongWait(true); setPhase(0) }, 10000)
+    const id = setInterval(() => setPhase(p => (p + 1) % (isLongWait ? long.length : short.length)), 1800)
+    return () => { clearInterval(id); clearTimeout(longTimer) }
+  }, [isLongWait])
+
+  const phrases = isLongWait ? long : short
 
   return (
     <div className="flex items-center justify-center py-1">
