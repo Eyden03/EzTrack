@@ -13,11 +13,12 @@ async function get(path) {
   return res.json()
 }
 
-async function post(path, data) {
+async function post(path, data, signal) {
   const res = await fetch(BASE + path, {
     method: 'POST',
     headers: headers(),
     body: JSON.stringify(data),
+    signal,
   })
   if (!res.ok) throw new Error(await res.text())
   return res.json()

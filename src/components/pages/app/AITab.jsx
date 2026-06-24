@@ -206,15 +206,22 @@ export default function AITab() {
   }
 
   async function callLLM(messages, ctx) {
+    const controller = new AbortController()
+    const timer = setTimeout(() => controller.abort(), 45000)
     try {
-      const data = await api.post('/chat', { messages, context: ctx })
+      const data = await api.post('/chat', { messages, context: ctx }, controller.signal)
+      clearTimeout(timer)
       return {
         reply: data.choices?.[0]?.message?.content || '',
         toolCallsUsed: data.tool_calls_used || [],
         tables: data.tables || [],
         documents: data.documents || [],
       }
-    } catch {
+    } catch (err) {
+      clearTimeout(timer)
+      if (err.name === 'AbortError') {
+        toast.error('Request timed out. Please try again.')
+      }
       return null
     }
   }
