@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 import { cn } from '@/lib/utils'
-import LogTransactionModal from '@/components/modals/LogTransactionModal'
+import AddMenu from '@/components/modals/AddMenu'
 
 const TABS = [
   { to: '/app/home', label: 'Home', icon: 'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1' },
@@ -27,14 +27,7 @@ export default function BottomNav() {
       ))}
 
       <div className="flex-1 flex items-center justify-center">
-        <LogTransactionModal>
-          <button className="relative -top-3 w-14 h-14 rounded-full bg-blue-600 text-white shadow-lg flex items-center justify-center hover:bg-blue-700 active:scale-95 transition-all ring-4 ring-white">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-6 h-6">
-              <line x1="12" y1="5" x2="12" y2="19" />
-              <line x1="5" y1="12" x2="19" y2="12" />
-            </svg>
-          </button>
-        </LogTransactionModal>
+        <AddMenu />
       </div>
 
       {TABS.slice(2).map(tab => (

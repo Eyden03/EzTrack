@@ -5,13 +5,16 @@ import { api } from '@/lib/api'
 import { CONFIG } from '@/config'
 import { toast } from 'sonner'
 
-export default function AddItemModal({ children }) {
+export default function AddItemModal({ open: extOpen, onOpenChange: extOnChange, children }) {
   const { state, dispatch } = useApp()
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [name, setName] = useState('')
   const [qty, setQty] = useState('')
   const [unit, setUnit] = useState('pcs')
   const [threshold, setThreshold] = useState('')
+
+  const open = extOpen ?? internalOpen
+  const setOpen = extOnChange ?? setInternalOpen
 
   function reset() {
     setName('')
@@ -42,7 +45,7 @@ export default function AddItemModal({ children }) {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      {children ? <DrawerTrigger asChild>{children}</DrawerTrigger> : null}
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Add Inventory Item</DrawerTitle>

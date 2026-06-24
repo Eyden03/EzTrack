@@ -5,13 +5,16 @@ import { api } from '@/lib/api'
 import { CONFIG } from '@/config'
 import { toast } from 'sonner'
 
-export default function LogTransactionModal({ children }) {
+export default function LogTransactionModal({ open: extOpen, onOpenChange: extOnChange, children }) {
   const { state, dispatch } = useApp()
-  const [open, setOpen] = useState(false)
+  const [internalOpen, setInternalOpen] = useState(false)
   const [txType, setTxType] = useState(CONFIG.TX.INCOME)
   const [amt, setAmt] = useState('')
   const [desc, setDesc] = useState('')
   const [cat, setCat] = useState('')
+
+  const open = extOpen ?? internalOpen
+  const setOpen = extOnChange ?? setInternalOpen
 
   function reset() {
     setTxType(CONFIG.TX.INCOME)
@@ -45,7 +48,7 @@ export default function LogTransactionModal({ children }) {
 
   return (
     <Drawer open={open} onOpenChange={setOpen}>
-      <DrawerTrigger asChild>{children}</DrawerTrigger>
+      {children ? <DrawerTrigger asChild>{children}</DrawerTrigger> : null}
       <DrawerContent>
         <DrawerHeader>
           <DrawerTitle>Log Transaction</DrawerTitle>
