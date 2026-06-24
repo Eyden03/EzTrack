@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Outlet, useNavigate } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import { api } from '@/lib/api'
@@ -8,21 +8,22 @@ import BottomNav from '@/components/layout/BottomNav'
 
 export default function AppLayout() {
   const { state, dispatch } = useApp()
-  const navigate = useNavigate()
   const [splashing, setSplashing] = useState(false)
+  const [outletKey, setOutletKey] = useState(0)
 
   async function handleTryUnlad() {
     setSplashing(true)
     const fresh = await api.post('/login/3')
     dispatch({ type: 'LOGIN', payload: fresh })
-    navigate('/app/home', { replace: true })
+    setOutletKey(k => k + 1)
+    setSplashing(false)
   }
 
   return (
     <div className="flex flex-col h-full">
       <TopBar />
       <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[env(safe-area-inset-bottom)]">
-        <Outlet />
+        <Outlet key={outletKey} />
       </div>
       {state.tier !== CONFIG.TIERS.UNLAD && (
         <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-100 shrink-0">
