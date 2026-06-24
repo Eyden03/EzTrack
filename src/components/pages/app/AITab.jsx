@@ -284,14 +284,30 @@ export default function AITab() {
 
   const chips = getSuggestionChips(tier)
 
+  async function handleTryUnlad() {
+    const fresh = await api.post('/login/3')
+    dispatch({ type: 'LOGIN', payload: fresh })
+    navigate('/app/home', { replace: true })
+  }
+
   return (
     <div className="flex flex-col h-full">
-      <div className="px-4 py-3 border-b border-gray-100">
+      <div className="px-4 pt-3 pb-2 border-b border-gray-100 space-y-2">
         <div className="text-[11px] text-gray-400 text-center">
           {tier === CONFIG.TIERS.SIMULA
             ? `${queriesRemaining} of ${CONFIG.AI_QUERY_LIMIT} AI queries remaining this month`
             : 'Unlimited AI queries'}
         </div>
+        {tier !== CONFIG.TIERS.UNLAD && (
+          <div className="px-3 py-1.5 rounded-lg bg-amber-50 border border-amber-100">
+            <p className="text-[11px] text-amber-800 text-center font-medium">
+              Want to see the full feature set with AI?{' '}
+              <button onClick={handleTryUnlad} className="font-semibold underline hover:text-amber-900">
+                Try the Unlad demo
+              </button>
+            </p>
+          </div>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
