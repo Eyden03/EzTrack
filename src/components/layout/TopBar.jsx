@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import NotificationsModal from '@/components/modals/NotificationsModal'
-import { TrendingUp, Bell, User } from 'lucide-react'
+import { Bell, User } from 'lucide-react'
 
 export default function TopBar() {
   const { state } = useApp()
@@ -18,10 +18,10 @@ export default function TopBar() {
     >
       <div className="flex items-center gap-2.5">
         <div
-          className="flex items-center justify-center shrink-0"
+          className="flex items-center justify-center shrink-0 overflow-hidden"
           style={{ width: '36px', height: '36px', borderRadius: '8px', background: 'rgba(255,255,255,0.15)' }}
         >
-          <TrendingUp size={20} color="#ffffff" strokeWidth={2} />
+          <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-full h-full object-cover" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1px' }}>
