@@ -20,6 +20,7 @@ const initialState = {
   dbReady: false,
   chatMessages: [],
   documents: [],
+  isAiThinking: false,
 }
 
 function reducer(state, action) {
@@ -88,6 +89,8 @@ function reducer(state, action) {
       localStorage.setItem('eztrack_docs', JSON.stringify(docs))
       return { ...state, documents: docs }
     }
+    case 'SET_AI_THINKING':
+      return { ...state, isAiThinking: action.payload }
     default:
       return state
   }

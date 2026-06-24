@@ -84,7 +84,7 @@ export default function AITab() {
   const { state, dispatch } = useApp()
   const messages = state.chatMessages
   const [input, setInput] = useState('')
-  const [isTyping, setIsTyping] = useState(false)
+  const isTyping = state.isAiThinking
   const [cooldown, setCooldown] = useState(false)
   const [showSuggestions, setShowSuggestions] = useState(true)
   const queriesRemaining = state.simulaQueriesRemaining
@@ -242,7 +242,7 @@ export default function AITab() {
     const userMsg = { role: 'user', text: text.trim(), ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) }
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: userMsg })
     setInput('')
-    setIsTyping(true)
+    dispatch({ type: 'SET_AI_THINKING', payload: true })
 
     if (tier === CONFIG.TIERS.SIMULA) dispatch({ type: 'DECREMENT_QUERY' })
 
@@ -263,7 +263,7 @@ export default function AITab() {
 
     const aiMsg = { role: 'ai', text: reply, ts: userMsg.ts, tools: result?.toolCallsUsed || [], tables: result?.tables || [] }
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: aiMsg })
-    setIsTyping(false)
+    dispatch({ type: 'SET_AI_THINKING', payload: false })
   }
 
   function handleKeyDown(e) {
