@@ -175,11 +175,26 @@ export default function AITab() {
   }, [messages.length])
 
   useEffect(() => {
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const last = scrollRef.current?.lastElementChild
+        last?.scrollIntoView({ block: 'end' })
+      })
+    })
+  }, [messages.length])
+
+  useEffect(() => {
     if (!scrollRef.current) return
     const el = scrollRef.current
-    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
-    if (isNearBottom) el.scrollTop = el.scrollHeight
-  }, [messages.length, revealedWords])
+    if (el.scrollHeight - el.scrollTop - el.clientHeight < 200) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          const last = scrollRef.current?.lastElementChild
+          last?.scrollIntoView({ block: 'end' })
+        })
+      })
+    }
+  }, [revealedWords])
 
   function keywordReply(msg) {
     const lower = msg.toLowerCase()
