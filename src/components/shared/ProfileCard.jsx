@@ -1,5 +1,11 @@
 import { CONFIG } from '@/config'
 
+const BIZ_DESCRIPTIONS = {
+  'Maria Anning': 'Small sari-sari store in QC — tracks daily sales, supplies, and utilities',
+  'Juan Dela Cruz': 'Online shop managing Shopee/TikTok payouts, ads, and shipping costs',
+  'Rosa Magsaysay': 'Retail hub with walk-in sales, staff payroll, rent, and BIR tax',
+}
+
 export default function ProfileCard({ profile, onSelect }) {
   const tierMeta = CONFIG.TIER_META[profile.tier]
   const bizIcon = CONFIG.BIZ_ICONS[profile.biz_type] || '💼'
@@ -19,6 +25,9 @@ export default function ProfileCard({ profile, onSelect }) {
         <div className="font-semibold text-gray-800 text-sm">{profile.name}</div>
         <div className="text-xs text-gray-400 truncate">
           {bizIcon} {profile.biz_name} · {profile.biz_city}
+        </div>
+        <div className="text-[11px] text-gray-400 leading-tight mt-0.5 line-clamp-2">
+          {BIZ_DESCRIPTIONS[profile.name] || 'Demo account'}
         </div>
       </div>
       <span

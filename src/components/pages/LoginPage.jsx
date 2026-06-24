@@ -22,20 +22,18 @@ export default function LoginPage() {
 
   return (
     <div className="flex flex-col h-full px-6 pt-10">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-          <svg viewBox="0 0 20 20" fill="none" stroke="white" strokeWidth="2" className="w-4 h-4">
-            <path d="M4 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 01-2 2H6a2 2 0 01-2-2V5z" />
-            <path d="M8 9l2 2 2-2" />
-          </svg>
-        </div>
-        <span className="font-bold text-gray-800">EzTrack</span>
+      <div className="flex items-center gap-3 mb-8">
+        <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-12 h-12 rounded-xl" />
+        <span className="text-lg font-extrabold text-gray-800">EzTrack</span>
       </div>
 
       <h1 className="text-2xl font-extrabold text-gray-900 leading-tight">
         Welcome back,<br />Negosyante! <span className="not-italic">👋</span>
       </h1>
-      <p className="text-sm text-gray-400 mt-1 mb-6">Choose your demo account</p>
+      <p className="text-sm text-gray-400 mt-1 mb-1">Choose a demo account to explore</p>
+      <p className="text-xs text-gray-400 mb-6 leading-relaxed">
+        This is a prototype — data is for demonstration only. Each account shows the features available at that tier.
+      </p>
 
       <div className="flex-1 overflow-y-auto space-y-3 pb-4">
         {profiles.map(p => (
