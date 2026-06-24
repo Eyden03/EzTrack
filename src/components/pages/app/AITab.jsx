@@ -69,8 +69,8 @@ function ThinkingIndicator() {
   const phrases = isLongWait ? long : short
 
   return (
-    <div className="flex items-center justify-center py-1">
-      <div className="flex items-center justify-center gap-2 px-4 py-1.5 bg-gray-100/80 backdrop-blur-sm rounded-full">
+    <div className="flex items-center justify-center pointer-events-none">
+      <div className="flex items-center justify-center gap-2 px-4 py-1.5 bg-gray-100/80 backdrop-blur-sm rounded-full shadow-sm pointer-events-auto">
         <div className="flex gap-1">
           <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" />
           <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.1s]" />
@@ -331,7 +331,7 @@ export default function AITab() {
   }
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full relative">
       <div className="px-4 pt-3 pb-2 border-b border-gray-100 space-y-2">
         <div className="text-[11px] text-gray-400 text-center">
           {tier === CONFIG.TIERS.SIMULA
@@ -409,8 +409,6 @@ export default function AITab() {
         })}
       </div>
 
-      {isTyping && <ThinkingIndicator />}
-
       {!isSimulaExhausted && chips.length > 0 && (
         <div className="px-4 py-2 border-t border-gray-100">
           <button
@@ -461,6 +459,12 @@ export default function AITab() {
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" className="w-4 h-4"><line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" /></svg>
             </button>
           </div>
+        </div>
+      )}
+
+      {isTyping && (
+        <div className="absolute inset-x-0 bottom-0 flex items-end justify-center pb-20 pointer-events-none z-10">
+          <ThinkingIndicator />
         </div>
       )}
     </div>
