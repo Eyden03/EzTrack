@@ -54,6 +54,26 @@ function ScrollRow({ children }) {
   )
 }
 
+function ThinkingIndicator() {
+  const [phase, setPhase] = useState(0)
+  const phrases = ['Thinking', 'Let me see', 'Checking', 'One moment']
+
+  useEffect(() => {
+    const id = setInterval(() => setPhase(p => (p + 1) % phrases.length), 1800)
+    return () => clearInterval(id)
+  }, [])
+
+  return (
+    <div className="flex justify-start">
+      <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3">
+        <span key={phase} className="text-sm text-gray-500 animate-word-fade inline-block">
+          {phrases[phase]}
+        </span>
+      </div>
+    </div>
+  )
+}
+
 export default function AITab() {
   const navigate = useNavigate()
   const { state, dispatch } = useApp()
@@ -66,6 +86,10 @@ export default function AITab() {
   const tier = state.tier
   const isSimulaExhausted = tier === CONFIG.TIERS.SIMULA && queriesRemaining <= 0
   const didSeedWelcome = useRef(false)
+  const [animatingIndex, setAnimatingIndex] = useState(-1)
+  const [revealedWords, setRevealedWords] = useState(0)
+  const wordIntervalRef = useRef(null)
+  const prevMsgLenRef = useRef(0)
 
   useEffect(() => {
     if (didSeedWelcome.current) return
@@ -94,6 +118,49 @@ export default function AITab() {
       dispatch({ type: 'ADD_CHAT_MESSAGE', payload: { role: 'ai', text, ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) } })
     }
   }, [])
+
+  useEffect(() => {
+    if (messages.length <= prevMsgLenRef.current) {
+      prevMsgLenRef.current = messages.length
+      return
+    }
+    prevMsgLenRef.current = messages.length
+    const last = messages[messages.length - 1]
+    if (!last) return
+    if (last.role === 'user') {
+      if (wordIntervalRef.current) {
+        clearInterval(wordIntervalRef.current)
+        wordIntervalRef.current = null
+      }
+      setAnimatingIndex(-1)
+      setRevealedWords(0)
+      return
+    }
+    if (last.role !== 'ai') return
+    const plain = last.text.replace(/<[^>]*>/g, '')
+    const words = plain.split(/\s+/).filter(Boolean)
+    if (words.length === 0) return
+    const idx = messages.length - 1
+    setAnimatingIndex(idx)
+    setRevealedWords(0)
+    let count = 0
+    wordIntervalRef.current = setInterval(() => {
+      count++
+      setRevealedWords(count)
+      if (count >= words.length) {
+        clearInterval(wordIntervalRef.current)
+        wordIntervalRef.current = null
+        setAnimatingIndex(-1)
+        setRevealedWords(0)
+      }
+    }, 50)
+    return () => {
+      if (wordIntervalRef.current) {
+        clearInterval(wordIntervalRef.current)
+        wordIntervalRef.current = null
+      }
+    }
+  }, [messages.length])
 
   function keywordReply(msg) {
     const lower = msg.toLowerCase()
@@ -158,6 +225,7 @@ export default function AITab() {
       return
     }
 
+    setShowSuggestions(false)
     const userMsg = { role: 'user', text: text.trim(), ts: new Date().toLocaleTimeString(CONFIG.LOCALE, { hour: 'numeric', minute: '2-digit' }) }
     dispatch({ type: 'ADD_CHAT_MESSAGE', payload: userMsg })
     setInput('')
@@ -202,13 +270,19 @@ export default function AITab() {
       </div>
 
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+        {messages.map((msg, i) => {
+          const isAnimating = msg.role === 'ai' && animatingIndex === i
+          const plainText = isAnimating ? msg.text.replace(/<[^>]*>/g, '') : ''
+          const words = isAnimating ? plainText.split(/\s+/).filter(Boolean) : []
+          const displayText = isAnimating ? words.slice(0, revealedWords).join(' ') : msg.text
+          const showTools = msg.role === 'ai' && msg.tools?.length > 0 && !isAnimating
+          return (
+          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'} ${msg.role === 'user' ? 'animate-pop-in' : ''}`}>
             <div className={`max-w-[85%] rounded-2xl px-4 py-2.5 ${msg.role === 'user' ? 'bg-blue-600 text-white rounded-br-md' : 'bg-gray-100 text-gray-800 rounded-bl-md'}`}>
-              {msg.role === 'ai' && msg.tools?.length > 0 && (
+              {showTools && (
                 <div className="text-[10px] text-gray-400 mb-1">Used: {msg.tools.join(', ')}</div>
               )}
-              <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: msg.text }} />
+              <div className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: displayText }} />
               {msg.tables?.map((t, ti) => (
                 <div key={ti} className="overflow-x-auto mt-2 mb-1">
                   <table className="w-full text-xs border-collapse">
@@ -250,18 +324,9 @@ export default function AITab() {
               <div className={`text-[10px] mt-1 ${msg.role === 'user' ? 'text-blue-200' : 'text-gray-400'}`}>{msg.ts}</div>
             </div>
           </div>
-        ))}
-        {isTyping && (
-          <div className="flex justify-start">
-            <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce" />
-                <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:0.1s]" />
-                <span className="w-2 h-2 rounded-full bg-gray-400 animate-bounce [animation-delay:0.2s]" />
-              </div>
-            </div>
-          </div>
-        )}
+          )
+        })}
+        {isTyping && <ThinkingIndicator />}
       </div>
 
       {!isSimulaExhausted && chips.length > 0 && (
