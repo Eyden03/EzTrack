@@ -1,5 +1,8 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { cn } from '@/lib/utils'
+import { useApp } from '@/context/AppContext'
+import { CONFIG } from '@/config'
+import { api } from '@/lib/api'
 import AddMenu from '@/components/modals/AddMenu'
 
 const TABS = [
@@ -10,39 +13,61 @@ const TABS = [
 ]
 
 export default function BottomNav() {
+  const { state, dispatch } = useApp()
+  const navigate = useNavigate()
+
+  async function handleTryUnlad() {
+    const fresh = await api.post('/login/3')
+    dispatch({ type: 'LOGIN', payload: fresh })
+    navigate('/app/home', { replace: true })
+  }
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 flex items-start border-t border-gray-200 bg-white h-[72px] pb-[env(safe-area-inset-bottom)]">
-      {TABS.slice(0, 2).map(tab => (
-        <NavLink key={tab.to} to={tab.to} end
-          className={({ isActive }) =>
-            cn('flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors pt-2',
-              isActive ? 'text-blue-600' : 'text-gray-400')
-          }
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-            <path d={tab.icon} />
-          </svg>
-          <span>{tab.label}</span>
-        </NavLink>
-      ))}
+    <nav className="fixed bottom-0 left-0 right-0 z-40">
+      {state.tier !== CONFIG.TIERS.UNLAD && (
+        <div className="px-4 py-1.5 bg-amber-50 border-t border-amber-100">
+          <p className="text-[11px] text-amber-800 text-center">
+            Want to see the full feature set?{' '}
+            <button onClick={handleTryUnlad} className="font-semibold underline hover:text-amber-900">
+              Try the Unlad demo
+            </button>
+            {' '}with Rosa Magsaysay.
+          </p>
+        </div>
+      )}
+      <div className="flex items-start border-t border-gray-200 bg-white h-[72px] pb-[env(safe-area-inset-bottom)]">
+        {TABS.slice(0, 2).map(tab => (
+          <NavLink key={tab.to} to={tab.to} end
+            className={({ isActive }) =>
+              cn('flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors pt-2',
+                isActive ? 'text-blue-600' : 'text-gray-400')
+            }
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
+              <path d={tab.icon} />
+            </svg>
+            <span>{tab.label}</span>
+          </NavLink>
+        ))}
 
-      <div className="flex-1 flex items-center justify-center">
-        <AddMenu />
+        <div className="flex-1 flex items-center justify-center">
+          <AddMenu />
+        </div>
+
+        {TABS.slice(2).map(tab => (
+          <NavLink key={tab.to} to={tab.to} end
+            className={({ isActive }) =>
+              cn('flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors pt-2',
+                isActive ? 'text-blue-600' : 'text-gray-400')
+            }
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
+              <path d={tab.icon} />
+            </svg>
+            <span>{tab.label}</span>
+          </NavLink>
+        ))}
       </div>
-
-      {TABS.slice(2).map(tab => (
-        <NavLink key={tab.to} to={tab.to} end
-          className={({ isActive }) =>
-            cn('flex-1 flex flex-col items-center justify-center gap-0.5 text-[10px] font-semibold transition-colors pt-2',
-              isActive ? 'text-blue-600' : 'text-gray-400')
-          }
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-[22px] h-[22px]">
-            <path d={tab.icon} />
-          </svg>
-          <span>{tab.label}</span>
-        </NavLink>
-      ))}
     </nav>
   )
 }
