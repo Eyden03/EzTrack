@@ -26,16 +26,16 @@ export default function TopBar() {
         borderBottom: '0.5px solid #e5e7eb',
       }}
     >
-      <div className="flex items-center gap-2.5">
+      <div className="flex items-center gap-0.2">
         <div
           className="flex items-center justify-center shrink-0 overflow-hidden"
-          style={{ width: '36px', height: '36px', borderRadius: '8px', background: '#e8edfb' }}
+          style={{ width: '60px', height: '60px', borderRadius: '8px', background: '#e8edfb' }}
         >
           <img src="/assets/images/logo-removebg.png" alt="EzTrack" className="w-full h-full object-cover" />
         </div>
 
         <div style={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-          <span style={{ fontSize: '15px', fontWeight: 500, color: '#111827', lineHeight: 1.2 }}>
+          <span style={{ fontSize: '15px', fontWeight: 800, color: '#1a3fdb', lineHeight: 1.2 }}>
             EzTrack
           </span>
           <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
