@@ -55,7 +55,7 @@ export default function AddMenu() {
           </button>
         </DrawerTrigger>
         <DrawerContent>
-          <DrawerHeader><DrawerTitle>Add New</DrawerTitle></DrawerHeader>
+          <DrawerHeader className="px-4 pt-4 pb-2"><DrawerTitle>Add New</DrawerTitle></DrawerHeader>
           <div className="px-4 pb-6 space-y-2">
             {visibleTypes.map(t => (
               <button
