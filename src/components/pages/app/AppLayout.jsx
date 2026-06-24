@@ -29,7 +29,7 @@ export default function AppLayout() {
   return (
     <div className="flex flex-col h-dvh">
       <TopBar />
-      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[72px]">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden">
         <Outlet key={outletKey} />
         {state.tier !== CONFIG.TIERS.UNLAD && (
           <div className="px-4 py-2.5 bg-amber-50 border-t border-amber-100 shrink-0">
