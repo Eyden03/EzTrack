@@ -226,10 +226,6 @@ export default function ReportsTab() {
         </>
       )}
 
-      <button className="w-full py-3.5 rounded-xl bg-blue-600 text-white font-bold text-sm hover:bg-blue-700 active:scale-[.98] transition-all mt-2 flex items-center justify-center gap-2">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="w-4 h-4"><path d="M6 18L18 6M6 6l12 12" /><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-        Generate Report
-      </button>
     </>) : (
       <div className="space-y-3">
         {docs.length === 0 ? (
