@@ -64,12 +64,15 @@ function ThinkingIndicator() {
   }, [])
 
   return (
-    <div className="flex justify-start">
-      <div className="max-w-[85%] rounded-2xl rounded-bl-md bg-gray-100 px-4 py-3">
-        <span key={phase} className="text-sm text-gray-500 animate-word-fade inline-block">
-          {phrases[phase]}
-        </span>
+    <div className="px-4 py-2 bg-white/80 backdrop-blur-sm border-t border-gray-100 flex items-center justify-center gap-2">
+      <div className="flex gap-1">
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" />
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.1s]" />
+        <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:0.2s]" />
       </div>
+      <span key={phase} className="text-xs text-gray-400 font-medium animate-word-fade">
+        {phrases[phase]}
+      </span>
     </div>
   )
 }
@@ -207,7 +210,7 @@ export default function AITab() {
 
   async function callLLM(messages, ctx) {
     const controller = new AbortController()
-    const timer = setTimeout(() => controller.abort(), 45000)
+    const timer = setTimeout(() => controller.abort(), 60000)
     try {
       const data = await api.post('/chat', { messages, context: ctx }, controller.signal)
       clearTimeout(timer)
@@ -374,8 +377,9 @@ export default function AITab() {
           </div>
           )
         })}
-        {isTyping && <ThinkingIndicator />}
       </div>
+
+      {isTyping && <ThinkingIndicator />}
 
       {!isSimulaExhausted && chips.length > 0 && (
         <div className="px-4 py-2 border-t border-gray-100">
