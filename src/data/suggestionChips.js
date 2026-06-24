@@ -20,6 +20,13 @@ export function getSuggestionChips(tier) {
     chips.push({ label: 'Manage your business', chips: manageGroup })
   }
 
+  if (tier === CONFIG.TIERS.SIMULA) {
+    const docGroup = [
+      { label: '🧾 Generate a receipt', msg: 'Generate a receipt for 2 kg Jasmine Rice at P50 each and 1L Coconut Cooking Oil at P120, paid in cash' },
+    ]
+    chips.push({ label: 'Generate documents', chips: docGroup })
+  }
+
   if (tier === CONFIG.TIERS.SIGLA || tier === CONFIG.TIERS.UNLAD) {
     const docGroup = [
       { label: '🧾 Receipt for supplies', msg: 'Generate a receipt for Juan dela Cruz: 5 boxes of Ligo Sardines at P240 each, 3 packs Nescafe Coffee at P85 each, paid via GCash' },
