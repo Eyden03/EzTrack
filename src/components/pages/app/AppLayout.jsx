@@ -1,5 +1,5 @@
-import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { useState, useEffect } from 'react'
+import { Outlet, useNavigate } from 'react-router-dom'
 import { useApp } from '@/context/AppContext'
 import { CONFIG } from '@/config'
 import { api } from '@/lib/api'
@@ -8,8 +8,15 @@ import BottomNav from '@/components/layout/BottomNav'
 
 export default function AppLayout() {
   const { state, dispatch } = useApp()
+  const navigate = useNavigate()
   const [splashing, setSplashing] = useState(false)
   const [outletKey, setOutletKey] = useState(0)
+
+  useEffect(() => {
+    if (!state.profileId) {
+      navigate('/login', { replace: true })
+    }
+  }, [state.profileId])
 
   async function handleTryUnlad() {
     setSplashing(true)
