@@ -2,7 +2,6 @@ import { Routes, Route, Navigate } from 'react-router-dom'
 import Splash from '@/components/pages/Splash'
 import LoginPage from '@/components/pages/LoginPage'
 import RegisterPage from '@/components/pages/RegisterPage'
-import PlansPage from '@/components/pages/PlansPage'
 import SetupStep1 from '@/components/pages/SetupStep1'
 import SetupStep2 from '@/components/pages/SetupStep2'
 import AppLayout from '@/components/pages/app/AppLayout'
@@ -19,7 +18,7 @@ export default function App() {
       <Route path="/splash" element={<Splash />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
-      <Route path="/plans" element={<PlansPage />} />
+      <Route path="/plans" element={<Navigate to="/login" replace />} />
       <Route path="/setup/step-1" element={<SetupStep1 />} />
       <Route path="/setup/step-2" element={<SetupStep2 />} />
       <Route path="/app" element={<AppLayout />}>
