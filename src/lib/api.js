@@ -1,4 +1,4 @@
-const BASE = '/api'
+const BASE = import.meta.env.VITE_API_BASE_URL || '/api'
 const KEY = import.meta.env.VITE_API_KEY || ''
 
 function headers() {
@@ -42,5 +42,5 @@ async function put(path, data) {
 export const api = { get, post, put, del }
 
 export function docUrl(profileId, filename) {
-  return `/api/documents/${profileId}/${filename}`
+  return `${BASE}/documents/${profileId}/${filename}`
 }
