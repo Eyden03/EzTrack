@@ -15,7 +15,11 @@ export default function ReportsTab() {
       const bytes = Uint8Array.from(atob(doc.data), c => c.charCodeAt(0))
       const blob = new Blob([bytes], { type: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' })
       const url = URL.createObjectURL(blob)
-      window.open(url)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = doc.filename
+      a.click()
+      URL.revokeObjectURL(url)
     } catch {}
   }
   const totalInc = state.transactions.filter(t => t.type === 'inc').reduce((s, t) => s + t.amt, 0)
