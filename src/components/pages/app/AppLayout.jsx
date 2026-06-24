@@ -17,7 +17,7 @@ export default function AppLayout() {
   return (
     <div className="flex flex-col h-dvh">
       <TopBar />
-      <div className="flex-1 overflow-y-auto overflow-x-hidden">
+      <div className="flex-1 overflow-y-auto overflow-x-hidden pb-[72px]">
         <Outlet key={0} />
       </div>
       <BottomNav />
