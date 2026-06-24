@@ -396,6 +396,7 @@ export default function AITab() {
         <div className="px-4 py-3 border-t border-gray-100">
           <div className="flex gap-2">
             <input type="text" value={input} onChange={e => setInput(e.target.value)} onKeyDown={handleKeyDown}
+              onFocus={() => showSuggestions && setShowSuggestions(false)}
               placeholder="Ask about your finances..." maxLength={500}
               className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-sm outline-none focus:border-blue-500 transition-colors" />
             <button onClick={() => handleSend(input)} disabled={!input.trim() || cooldown}
