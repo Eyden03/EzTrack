@@ -117,7 +117,7 @@ class ChatRequest(BaseModel):
 def build_system_prompt(ctx: dict, tier: str):
     net = (ctx.get("weeklyIncome") or 0) - (ctx.get("weeklyExpenses") or 0)
     tx_summary = "\n".join(
-        f"  {t['date']} {'+' if t['type']=='inc' else '-'}₱{t['amt']} -- {t['desc']}"
+        f"  {t['date']} {'+' if t['type']=='inc' else '-'}₱{t['amt']} {t['desc']}"
         for t in (ctx.get("recentTransactions") or [])
     )
     tool_list = get_tool_list_text(tier)
