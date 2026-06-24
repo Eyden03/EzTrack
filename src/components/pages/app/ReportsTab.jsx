@@ -29,7 +29,7 @@ export default function ReportsTab() {
   const net = totalInc - totalExp
 
   return (
-    <div className="px-4 pt-4 pb-6">
+    <div className="px-4 pt-4 pb-6 animate-in fade-in duration-200">
       <div className="flex gap-1 bg-gray-100 rounded-xl p-1 mb-4">
         <button
           onClick={() => setTab('analytics')}

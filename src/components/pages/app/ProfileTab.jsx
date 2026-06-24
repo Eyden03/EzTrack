@@ -18,7 +18,7 @@ export default function ProfileTab() {
   }
 
   return (
-    <div className="pb-6">
+    <div className="pb-6 animate-in fade-in duration-200">
       <div className="bg-gradient-to-b from-blue-600 to-blue-800 px-6 pt-8 pb-6 text-white">
         <div
           className="w-14 h-14 rounded-full flex items-center justify-center text-xl font-bold text-white mb-3"

@@ -13,7 +13,7 @@ export default function InventoryTab() {
   }
 
   return (
-    <div className="px-4 pt-4 pb-6">
+    <div className="px-4 pt-4 pb-6 animate-in fade-in duration-200">
       <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wide px-1 mb-2">Stock Levels</div>
       {inv.length === 0 ? (
         <div className="rounded-xl border border-dashed border-gray-200 bg-gray-50 p-6 text-center">

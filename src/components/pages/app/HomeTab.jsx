@@ -53,7 +53,7 @@ export default function HomeTab() {
   const [showAllTx, setShowAllTx] = useState(false)
 
   return (
-    <div className="px-4 pt-4 pb-6">
+    <div className="px-4 pt-4 pb-6 animate-in fade-in duration-200">
       <div className="rounded-[20px] bg-gradient-to-br from-blue-600 to-blue-800 p-5 relative overflow-hidden text-white mb-4">
         <div className="absolute top-[-30px] right-[-30px] w-[130px] h-[130px] rounded-full bg-blue-400/18 pointer-events-none" />
         <div className="absolute bottom-[-40px] left-[-20px] w-[100px] h-[100px] rounded-full bg-blue-400/10 pointer-events-none" />
