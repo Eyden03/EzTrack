@@ -100,6 +100,7 @@ export default function AITab() {
   const [revealedWords, setRevealedWords] = useState(0)
   const wordIntervalRef = useRef(null)
   const prevMsgLenRef = useRef(0)
+  const scrollRef = useRef(null)
 
   useEffect(() => {
     if (didSeedWelcome.current) return
@@ -172,6 +173,13 @@ export default function AITab() {
       }
     }
   }, [messages.length])
+
+  useEffect(() => {
+    if (!scrollRef.current) return
+    const el = scrollRef.current
+    const isNearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 120
+    if (isNearBottom) el.scrollTop = el.scrollHeight
+  }, [messages.length, revealedWords])
 
   function keywordReply(msg) {
     const lower = msg.toLowerCase()
@@ -327,7 +335,7 @@ export default function AITab() {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+      <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
         {messages.map((msg, i) => {
           const isAnimating = msg.role === 'ai' && animatingIndex === i
           const plainText = isAnimating ? msg.text.replace(/<[^>]*>/g, '') : ''
